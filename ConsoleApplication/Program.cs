@@ -17,7 +17,8 @@ namespace ConsoleApplication
 
             foreach (var cer in cers)
             {
-                Console.WriteLine($"Subject: {cer.Subject}\nPublic key: {cer.GetPublicKeyString()}\n");
+                int pubKeySize = cer.GetPublicKeyString().Length * sizeof(char);
+                Console.WriteLine($"Subject: {cer.Subject}\nPublic key: ({pubKeySize}) {cer.GetPublicKeyString()}\n");
                 //Console.WriteLine(cer.PublicKey.EncodedKeyValue.Format(false));
             }
 

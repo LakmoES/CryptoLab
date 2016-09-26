@@ -3,6 +3,8 @@ using System.Windows.Input;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Threading;
+using System.Collections;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Core.ViewModel
 {
@@ -32,28 +34,35 @@ namespace Core.ViewModel
 
         #region Commands
         private RelayCommand _chooseOriginalFileCommand;
-        public ICommand ChooseOriginalFileCommand => _chooseOriginalFileCommand ?? (_chooseOriginalFileCommand = new RelayCommand(null));
+        public ICommand ChooseOriginalFileCommand => _chooseOriginalFileCommand ?? (_chooseOriginalFileCommand = new RelayCommand(() => RaiseOpenOriginalPath("Файл для шифрования")));
 
-        private RelayCommand _chooseEncodedFileCommand;
-        public ICommand ChooseEncodedFileCommand => _chooseEncodedFileCommand ?? (_chooseEncodedFileCommand = new RelayCommand(null));
+        private RelayCommand _chooseEncryptedFileCommand;
+        public ICommand ChooseEncryptedFileCommand => _chooseEncryptedFileCommand ?? (_chooseEncryptedFileCommand = new RelayCommand(() => RaiseOpenEncryptedPath("Зашифрованный файл")));
 
         private RelayCommand _showCersCommand;
         public ICommand ShowCersCommand => _showCersCommand ?? (_showCersCommand = new RelayCommand(RaiseShowCers));
+
+        private RelayCommand _chooseCertificateForEncryptingCommand;
+
+        public ICommand ChooseCertificateForEncryptingCommand
+            =>
+                _chooseCertificateForEncryptingCommand ??
+                (_chooseCertificateForEncryptingCommand = new RelayCommand(RaiseChooseCertificateForEncrypting));
         #endregion
 
         #region Events
         public event EventHandler<string> OpenOriginalPath;
-        private void RaiseOpenOriginalPath(string path)
+        private void RaiseOpenOriginalPath(string title)
         {
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
-                    OpenOriginalPath?.Invoke(this, path));
+                    OpenOriginalPath?.Invoke(this, title));
         }
 
-        public event EventHandler<string> OpenEncodedPath;
-        private void RaiseOpenEncodedPath(string path)
+        public event EventHandler<string> OpenEncryptedPath;
+        private void RaiseOpenEncryptedPath(string title)
         {
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
-                    OpenEncodedPath?.Invoke(this, path));
+                    OpenEncryptedPath?.Invoke(this, title));
         }
 
         public event EventHandler ShowCers;
@@ -62,10 +71,18 @@ namespace Core.ViewModel
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
                     ShowCers?.Invoke(this, EventArgs.Empty));
         }
+        public event EventHandler ChooseCertificateForEncrypting;
+        private void RaiseChooseCertificateForEncrypting()
+        {
+            DispatcherHelper.CheckBeginInvokeOnUI(() =>
+                    ChooseCertificateForEncrypting?.Invoke(this, EventArgs.Empty));
+        }
         #endregion
 
         #region Private Fields
         private string _title;
+        private X509Certificate2 _encryptingCertificate;
+        private string _originalPath;
         #endregion
 
         #region Public Properties
@@ -78,7 +95,27 @@ namespace Core.ViewModel
             }
             get { return _title; }
         }
+
+        public X509Certificate2 EncryptingCertificate
+        {
+            set
+            {
+                _encryptingCertificate = value;
+                RaisePropertyChanged(() => EncryptingCertificate);
+            }
+            get { return _encryptingCertificate; }
+        }
+
+        public string OriginalPath
+        {
+            set
+            {
+                _originalPath = value;
+                RaisePropertyChanged(() => OriginalPath);
+            }
+            get { return _originalPath; }
+        }
         #endregion
-        
+
     }
 }

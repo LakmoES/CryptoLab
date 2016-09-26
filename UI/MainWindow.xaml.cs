@@ -1,19 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows;
 using Core.ViewModel;
-using UI.ViewModel;
+using Microsoft.Win32;
 
 namespace UI
 {
@@ -37,6 +24,18 @@ namespace UI
                 {
                     ViewShower.Show(new CertificatesWindow {DataContext = new CertificatesViewModel()}, true, (b) => { });
                 };
+
+            vm.OpenOriginalPath += OpenOriginalFile;
+        }
+
+        private void OpenOriginalFile(object sender, string title)
+        {
+            var ofd = new OpenFileDialog {Title = title};
+            if (ofd.ShowDialog(this) == true)
+            {
+                var mainViewModel = DataContext as MainViewModel;
+                if (mainViewModel != null) mainViewModel.OriginalPath = ofd.FileName;
+            }
         }
     }
 }
