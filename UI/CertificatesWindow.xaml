@@ -7,8 +7,8 @@
         xmlns:custom="clr-namespace:GalaSoft.MvvmLight;assembly=GalaSoft.MvvmLight"
         xmlns:local="clr-namespace:UI"
         mc:Ignorable="d"
-        Title="{Binding Title}" Height="300" Width="300">
-    <StackPanel Margin="5,5,5,5">
+        Title="{Binding Title}" Height="Auto" Width="Auto">
+    <StackPanel Margin="5,5,5,5" Height="Auto" Width="Auto">
         <TextBlock Text="{Binding Path=CersAmount, StringFormat=Количество сертификатов: {0}}"/>
         <ListView Margin="0,5,0,0"  ItemsSource="{Binding CersCollection}">
             <ListView.ItemTemplate>

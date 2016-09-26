@@ -8,13 +8,12 @@ using System.Threading.Tasks;
 
 namespace Core.CryptoAlgorithms
 {
-    public class RSAAlgorithm
+    public class RSAAlgorithm : ICryptoAlgorithm
     {
-        public RSAAlgorithm()
-        {
 
-        }
-        public static string Encrypt(X509Certificate2 x509, string stringToEncrypt)
+        public RSAAlgorithm(){}
+        public string Name => "RSA";
+        public string Encrypt(X509Certificate2 x509, string stringToEncrypt)
         {
             if (x509 == null || string.IsNullOrEmpty(stringToEncrypt))
                 throw new Exception("A x509 certificate and string for encryption must be provided");
@@ -25,7 +24,7 @@ namespace Core.CryptoAlgorithms
             return Convert.ToBase64String(encryptedBytes);
         }
 
-        public static string Decrypt(X509Certificate2 x509, string stringTodecrypt)
+        public string Decrypt(X509Certificate2 x509, string stringTodecrypt)
         {
             if (x509 == null || string.IsNullOrEmpty(stringTodecrypt))
                 throw new Exception("A x509 certificate and string for decryption must be provided");

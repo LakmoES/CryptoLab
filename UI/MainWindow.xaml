@@ -94,11 +94,16 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Margin="5" Grid.Column="1">
                     <TextBlock Text="Алгоритм"/>
-                    <ComboBox/>
+                    <ComboBox 
+                        ItemsSource="{Binding CryptoAlgorithms}"
+                        DisplayMemberPath="Name"
+                        SelectedValuePath="Name"
+                        SelectedValue="{Binding SelectedCryptoAlgorithm}"
+                        />
                 </StackPanel>
                 <StackPanel Margin="5" Grid.Column="2">
-                    <TextBlock Text="Длина ключа"/>
-                    <ComboBox/>
+                    <TextBlock Text="Длина ключа" Visibility="Hidden"/>
+                    <ComboBox Visibility="Hidden"/>
                 </StackPanel>
             </Grid>
         </Grid>

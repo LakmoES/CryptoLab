@@ -26,8 +26,9 @@ namespace CoreTests
 
             X509Certificate2 certificate = cersArray.FirstOrDefault(x => x.Subject.Contains("lakmoes@onu.edu.ua"));
             Assert.IsNotNull(certificate, "certificate is null");
-            var encrypted = RSAAlgorithm.Encrypt(certificate, message);
-            var decrypted = RSAAlgorithm.Decrypt(certificate, encrypted);
+            var rsa = new RSAAlgorithm();
+            var encrypted = rsa.Encrypt(certificate, message);
+            var decrypted = rsa.Decrypt(certificate, encrypted);
 
             Assert.AreNotEqual(encrypted, decrypted);
             Assert.AreEqual(message, decrypted);

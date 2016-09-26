@@ -4,7 +4,9 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Threading;
 using System.Collections;
+using System.Collections.ObjectModel;
 using System.Security.Cryptography.X509Certificates;
+using Core.CryptoAlgorithms;
 
 namespace Core.ViewModel
 {
@@ -30,6 +32,11 @@ namespace Core.ViewModel
             Title = "Crypto";
 
             DispatcherHelper.Initialize();
+
+            CryptoAlgorithms = new ObservableCollection<ICryptoAlgorithm>
+            {
+                new RSAAlgorithm()
+            };
         }
 
         #region Commands
@@ -83,6 +90,7 @@ namespace Core.ViewModel
         private string _title;
         private X509Certificate2 _encryptingCertificate;
         private string _originalPath;
+        private ICryptoAlgorithm _selectedCryptoAlgorithm;
         #endregion
 
         #region Public Properties
@@ -95,7 +103,6 @@ namespace Core.ViewModel
             }
             get { return _title; }
         }
-
         public X509Certificate2 EncryptingCertificate
         {
             set
@@ -105,7 +112,6 @@ namespace Core.ViewModel
             }
             get { return _encryptingCertificate; }
         }
-
         public string OriginalPath
         {
             set
@@ -115,6 +121,19 @@ namespace Core.ViewModel
             }
             get { return _originalPath; }
         }
+
+        public ObservableCollection<ICryptoAlgorithm> CryptoAlgorithms { set; get; }
+
+        public ICryptoAlgorithm SelectedCryptoAlgorithm
+        {
+            set
+            {
+                _selectedCryptoAlgorithm = value;
+                RaisePropertyChanged(() => SelectedCryptoAlgorithm);
+            }
+            get { return _selectedCryptoAlgorithm; }
+        }
+
         #endregion
 
     }
