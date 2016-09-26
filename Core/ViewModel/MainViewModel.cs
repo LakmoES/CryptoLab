@@ -32,7 +32,7 @@ namespace Core.ViewModel
         /// </summary>
         public MainViewModel()
         {
-            Title = "Crypto";
+            Title = "Шифратор";
             IsEnabled = true;
 
             DispatcherHelper.Initialize();
@@ -128,6 +128,7 @@ namespace Core.ViewModel
         #region Private Fields
         private bool _isEnabled;
         private string _title;
+        private string _status;
         private X509Certificate2 _encryptingCertificate;
         private X509Certificate2 _decryptingCertificate;
         private string _originalPath;
@@ -146,6 +147,15 @@ namespace Core.ViewModel
                 RaisePropertyChanged(() => IsEnabled);
             }
             get { return _isEnabled; }
+        }
+        public string Status
+        {
+            set
+            {
+                _status = value;
+                RaisePropertyChanged(() => Status);
+            }
+            get { return _status; }
         }
         public string Title
         {
@@ -219,13 +229,21 @@ namespace Core.ViewModel
         {
             IsEnabled = false;
             List<string> errorList = new List<string>();
-            if(String.IsNullOrEmpty(OriginalPath))
+            if(string.IsNullOrEmpty(OriginalPath))
                 errorList.Add("Не задан файл для шифрования");
             if (EncryptingCertificate == null)
                 errorList.Add("Не указан сертификат для шифрования");
+            if (SelectedCryptoAlgorithm == null)
+                errorList.Add("Не указан алгоритм шифрования");
             if (errorList.Count > 0)
+            {
                 RaiseShowErrors(errorList.ToArray());
+                IsEnabled = true;
+                return false;
+            }
+            Status = "Идет шифрование...";
             Thread.Sleep(1000);
+            Status = "Свободен";
             IsEnabled = true;
             return errorList.Count <= 0;
         }
@@ -233,15 +251,23 @@ namespace Core.ViewModel
         {
             IsEnabled = false;
             List<string> errorList = new List<string>();
-            if (String.IsNullOrEmpty(EncryptedPath))
+            if (string.IsNullOrEmpty(EncryptedPath))
                 errorList.Add("Не задан файл для дешифрования");
-            if(String.IsNullOrEmpty(SessionFilePath))
+            if(string.IsNullOrEmpty(SessionFilePath))
                 errorList.Add("Файл с сессионным ключем не указан");
             if(DecryptingCertificate == null)
                 errorList.Add("Не указан сертификат для дешифрования");
+            if (SelectedCryptoAlgorithm == null)
+                errorList.Add("Не указан алгоритм шифрования");
             if (errorList.Count > 0)
+            {
                 RaiseShowErrors(errorList.ToArray());
+                IsEnabled = true;
+                return false;
+            }
+            Status = "Идет дешифрование...";
             Thread.Sleep(1000);
+            Status = "Свободен";
             IsEnabled = true;
 
             return errorList.Count <= 0;
