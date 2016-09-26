@@ -69,6 +69,7 @@
     <Compile Include="CryptoAlgorithms\ICryptoAlgorithm.cs" />
     <Compile Include="CryptoAlgorithms\RSAAlgorithm.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModel\CertificateSelectViewModel.cs" />
     <Compile Include="ViewModel\CertificatesViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />

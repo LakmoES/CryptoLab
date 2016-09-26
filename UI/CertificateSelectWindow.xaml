@@ -1,0 +1,42 @@
+﻿<Window x:Class="UI.CertificateSelectWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:local="clr-namespace:UI"
+        mc:Ignorable="d"
+        Title="{Binding Title}" Height="Auto" Width="Auto">
+    <StackPanel Margin="5,5,5,5" Height="Auto" Width="Auto">
+        <TextBlock Text="{Binding Path=CersAmount, StringFormat=Количество сертификатов: {0}}"/>
+        <ListView Margin="0,5,0,0"  
+                  ItemsSource="{Binding CersCollection}"
+                  SelectedItem="{Binding SelectedCertificate}"
+                  >
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel.ToolTip>
+                            <StackPanel>
+                                <TextBlock Text="Публичный ключ:"/>
+                                <TextBlock Text="[будет позже]"/>
+                            </StackPanel>
+                        </StackPanel.ToolTip>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseLeftButtonUp">
+                                <i:InvokeCommandAction 
+                                    Command="{Binding DataContext.SelectItemRelayCommand, 
+                                            RelativeSource={RelativeSource FindAncestor, 
+                                            AncestorType={x:Type ItemsControl}}}"
+                                    CommandParameter="{Binding}">
+                                </i:InvokeCommandAction>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        <TextBlock Text="{Binding Path=Subject, StringFormat=Кому выдан: {0}}"/>
+                        <TextBlock Text="{Binding Path=Issuer, StringFormat=Кем выдан: {0}}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </StackPanel>
+</Window>

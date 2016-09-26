@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using Core.ViewModel;
 using Microsoft.Win32;
 
@@ -22,20 +23,36 @@ namespace UI
             vm.ShowCers +=
                 (o, eventArgs) =>
                 {
-                    ViewShower.Show(new CertificatesWindow {DataContext = new CertificatesViewModel()}, true, (b) => { });
+                    ViewShower.Show(new CertificatesWindow(), new CertificatesViewModel(), true, (b) => { });
+                };
+            vm.ChooseCertificateForEncrypting += 
+                (o, eventArgs) =>
+                {
+                    ViewShower.ShowCertSelector(new CertificateSelectWindow(), new CertificateSelectViewModel(), (cert) =>
+                    {
+                        vm.EncryptingCertificate = cert;
+                    });
+                };
+            vm.ChooseCertificateForDecrypting +=
+                (o, eventArgs) =>
+                {
+                    ViewShower.ShowCertSelector(new CertificateSelectWindow(), new CertificateSelectViewModel(), (cert) =>
+                    {
+                        vm.DecryptingCertificate = cert;
+                    });
                 };
 
-            vm.OpenOriginalPath += OpenOriginalFile;
+            vm.OpenSessionFilePath += (o, s) => { (DataContext as MainViewModel).SessionFilePath = OpenFile(s); };
+            vm.OpenOriginalPath += (o, s) => { (DataContext as MainViewModel).OriginalPath = OpenFile(s); };
+            vm.OpenEncryptedPath += (o, s) => { (DataContext as MainViewModel).EncryptedPath = OpenFile(s); };
         }
 
-        private void OpenOriginalFile(object sender, string title)
+        private string OpenFile(string title)
         {
-            var ofd = new OpenFileDialog {Title = title};
+            var ofd = new OpenFileDialog { Title = title };
             if (ofd.ShowDialog(this) == true)
-            {
-                var mainViewModel = DataContext as MainViewModel;
-                if (mainViewModel != null) mainViewModel.OriginalPath = ofd.FileName;
-            }
+                return ofd.FileName;
+            return null;
         }
     }
 }

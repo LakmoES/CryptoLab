@@ -46,6 +46,9 @@ namespace Core.ViewModel
         private RelayCommand _chooseEncryptedFileCommand;
         public ICommand ChooseEncryptedFileCommand => _chooseEncryptedFileCommand ?? (_chooseEncryptedFileCommand = new RelayCommand(() => RaiseOpenEncryptedPath("Зашифрованный файл")));
 
+        private RelayCommand _chooseSessionFileCommand;
+        public ICommand ChooseSessionFileCommand => _chooseSessionFileCommand ?? (_chooseSessionFileCommand = new RelayCommand(() => RaiseOpenSessionFilePath("Файл сессионного ключа")));
+
         private RelayCommand _showCersCommand;
         public ICommand ShowCersCommand => _showCersCommand ?? (_showCersCommand = new RelayCommand(RaiseShowCers));
 
@@ -55,6 +58,12 @@ namespace Core.ViewModel
             =>
                 _chooseCertificateForEncryptingCommand ??
                 (_chooseCertificateForEncryptingCommand = new RelayCommand(RaiseChooseCertificateForEncrypting));
+
+        private RelayCommand _chooseCertificateForDecryptingCommand;
+        public ICommand ChooseCertificateForDecryptingCommand
+            =>
+                _chooseCertificateForDecryptingCommand ??
+                (_chooseCertificateForDecryptingCommand = new RelayCommand(RaiseChooseCertificateForDecrypting));
         #endregion
 
         #region Events
@@ -84,13 +93,28 @@ namespace Core.ViewModel
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
                     ChooseCertificateForEncrypting?.Invoke(this, EventArgs.Empty));
         }
+        public event EventHandler ChooseCertificateForDecrypting;
+        private void RaiseChooseCertificateForDecrypting()
+        {
+            DispatcherHelper.CheckBeginInvokeOnUI(() =>
+                    ChooseCertificateForDecrypting?.Invoke(this, EventArgs.Empty));
+        }
+        public event EventHandler<string> OpenSessionFilePath;
+        private void RaiseOpenSessionFilePath(string title)
+        {
+            DispatcherHelper.CheckBeginInvokeOnUI(() =>
+                    OpenSessionFilePath?.Invoke(this, title));
+        }
         #endregion
 
         #region Private Fields
         private string _title;
         private X509Certificate2 _encryptingCertificate;
+        private X509Certificate2 _decryptingCertificate;
         private string _originalPath;
         private ICryptoAlgorithm _selectedCryptoAlgorithm;
+        private string _sessionFilePath;
+        private string _encryptedPath;
         #endregion
 
         #region Public Properties
@@ -112,6 +136,15 @@ namespace Core.ViewModel
             }
             get { return _encryptingCertificate; }
         }
+        public X509Certificate2 DecryptingCertificate
+        {
+            set
+            {
+                _decryptingCertificate = value;
+                RaisePropertyChanged(() => DecryptingCertificate);
+            }
+            get { return _decryptingCertificate; }
+        }
         public string OriginalPath
         {
             set
@@ -120,6 +153,24 @@ namespace Core.ViewModel
                 RaisePropertyChanged(() => OriginalPath);
             }
             get { return _originalPath; }
+        }
+        public string SessionFilePath
+        {
+            set
+            {
+                _sessionFilePath = value;
+                RaisePropertyChanged(() => SessionFilePath);
+            }
+            get { return _sessionFilePath; }
+        }
+        public string EncryptedPath
+        {
+            set
+            {
+                _encryptedPath = value;
+                RaisePropertyChanged(() => EncryptedPath);
+            }
+            get { return _encryptedPath; }
         }
 
         public ObservableCollection<ICryptoAlgorithm> CryptoAlgorithms { set; get; }
