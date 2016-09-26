@@ -45,6 +45,11 @@ namespace UI
             vm.OpenSessionFilePath += (o, s) => { (DataContext as MainViewModel).SessionFilePath = OpenFile(s); };
             vm.OpenOriginalPath += (o, s) => { (DataContext as MainViewModel).OriginalPath = OpenFile(s); };
             vm.OpenEncryptedPath += (o, s) => { (DataContext as MainViewModel).EncryptedPath = OpenFile(s); };
+            vm.ShowErrors += (o, enumerable) =>
+            {
+                MessageBox.Show(String.Join(Environment.NewLine, enumerable), "Произошла ошибка", MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+            };
         }
 
         private string OpenFile(string title)

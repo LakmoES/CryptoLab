@@ -4,8 +4,11 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Threading;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
+using System.Threading.Tasks;
 using Core.CryptoAlgorithms;
 
 namespace Core.ViewModel
@@ -30,6 +33,7 @@ namespace Core.ViewModel
         public MainViewModel()
         {
             Title = "Crypto";
+            IsEnabled = true;
 
             DispatcherHelper.Initialize();
 
@@ -64,6 +68,12 @@ namespace Core.ViewModel
             =>
                 _chooseCertificateForDecryptingCommand ??
                 (_chooseCertificateForDecryptingCommand = new RelayCommand(RaiseChooseCertificateForDecrypting));
+
+        private RelayCommand _encryptCommand;
+        public ICommand EncryptCommand => _encryptCommand ?? (_encryptCommand = new RelayCommand(async () => await Task.Run(() => Encrypt())));
+
+        private RelayCommand _decryptCommand;
+        public ICommand DecryptCommand => _decryptCommand ?? (_decryptCommand = new RelayCommand(async () => await Task.Run(() => Decrypt())));
         #endregion
 
         #region Events
@@ -105,9 +115,18 @@ namespace Core.ViewModel
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
                     OpenSessionFilePath?.Invoke(this, title));
         }
+
+        public event EventHandler<IEnumerable<string>> ShowErrors;
+
+        private void RaiseShowErrors(params string[] errors)
+        {
+            DispatcherHelper.CheckBeginInvokeOnUI(() =>
+                    ShowErrors?.Invoke(this, errors));
+        }
         #endregion
 
         #region Private Fields
+        private bool _isEnabled;
         private string _title;
         private X509Certificate2 _encryptingCertificate;
         private X509Certificate2 _decryptingCertificate;
@@ -118,6 +137,16 @@ namespace Core.ViewModel
         #endregion
 
         #region Public Properties
+
+        public bool IsEnabled
+        {
+            set
+            {
+                _isEnabled = value;
+                RaisePropertyChanged(() => IsEnabled);
+            }
+            get { return _isEnabled; }
+        }
         public string Title
         {
             set
@@ -184,8 +213,38 @@ namespace Core.ViewModel
             }
             get { return _selectedCryptoAlgorithm; }
         }
-
         #endregion
 
+        private bool Encrypt()
+        {
+            IsEnabled = false;
+            List<string> errorList = new List<string>();
+            if(String.IsNullOrEmpty(OriginalPath))
+                errorList.Add("Не задан файл для шифрования");
+            if (EncryptingCertificate == null)
+                errorList.Add("Не указан сертификат для шифрования");
+            if (errorList.Count > 0)
+                RaiseShowErrors(errorList.ToArray());
+            Thread.Sleep(1000);
+            IsEnabled = true;
+            return errorList.Count <= 0;
+        }
+        private bool Decrypt()
+        {
+            IsEnabled = false;
+            List<string> errorList = new List<string>();
+            if (String.IsNullOrEmpty(EncryptedPath))
+                errorList.Add("Не задан файл для дешифрования");
+            if(String.IsNullOrEmpty(SessionFilePath))
+                errorList.Add("Файл с сессионным ключем не указан");
+            if(DecryptingCertificate == null)
+                errorList.Add("Не указан сертификат для дешифрования");
+            if (errorList.Count > 0)
+                RaiseShowErrors(errorList.ToArray());
+            Thread.Sleep(1000);
+            IsEnabled = true;
+
+            return errorList.Count <= 0;
+        }
     }
 }
