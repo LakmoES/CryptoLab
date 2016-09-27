@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -32,6 +33,20 @@ namespace CoreTests
 
             Assert.AreNotEqual(encrypted, decrypted);
             Assert.AreEqual(message, decrypted);
+        }
+
+        [TestMethod]
+        public void TestDesEncryptDecrypt()
+        {
+            string message = "Hello world!";
+            string password = "password";
+
+            var des = new DESAlgotithm();
+
+            var encrypted = des.Encrypt(message, password);
+            Assert.AreNotEqual(message, encrypted, "encrypted and message are equal!");
+            var decrypted = des.Decrypt(encrypted, password);
+            Assert.AreEqual(message, decrypted, "message and decrypted are not equal!");
         }
     }
 }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Core.CryptoAlgorithms
 {
-    public class RSAAlgorithm : ICryptoAlgorithm
+    public class RSAAlgorithm
     {
 
         public RSAAlgorithm(){}

@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UI"
         mc:Ignorable="d"
-        Title="{Binding Title}" Height="350" Width="525"
+        Title="{Binding Title}" Height="300" Width="525"
         Background="#f0f0f0"
-        MinHeight="250"
-        MinWidth="250"
+        MinHeight="300"
+        MinWidth="460"
         IsEnabled="{Binding IsEnabled}">
     <DockPanel>
         <StatusBar DockPanel.Dock="Bottom">
@@ -44,8 +44,8 @@
         </StatusBar>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="75*"/>
-                <ColumnDefinition Width="25*"/>
+                <ColumnDefinition Width="65*"/>
+                <ColumnDefinition Width="35*"/>
             </Grid.ColumnDefinitions>
             <TabControl>
                 <TabItem Header="Шифрование">
@@ -69,14 +69,14 @@
                                 <TextBox Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding OriginalPath}"/>
                                 <Button Grid.Column="2" Content="Выбрать" Command="{Binding ChooseOriginalFileCommand}"/>
                             </Grid>
-                            <TextBlock Text="Сертификат" Margin="0,20,0,0"/>
-                            <Grid>
+                            <TextBlock Margin="0,5,0,0" Text="Файл с сессионным ключом"/>
+                            <Grid Margin="0,5,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="70*"/>
                                     <ColumnDefinition Width="30*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBox IsReadOnly="True" IsReadOnlyCaretVisible="True" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding EncryptingCertificate.Subject, Mode=OneWay}"/>
-                                <Button Grid.Column="1" Content="Выбрать" Command="{Binding ChooseCertificateForEncryptingCommand}"/>
+                                <TextBox Grid.Column="0" Text="{Binding SessionFileForEncryptingPath}" />
+                                <Button Grid.Column="1" Content="Выбрать" Command="{Binding ChooseSessionFileForEncryptingCommand}"/>
                             </Grid>
                         </StackPanel>
                         <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" VerticalAlignment="Center">
@@ -109,15 +109,6 @@
                                 <TextBox Grid.Column="0" Text="{Binding SessionFilePath}" />
                                 <Button Grid.Column="1" Content="Выбрать" Command="{Binding ChooseSessionFileCommand}"/>
                             </Grid>
-                            <TextBlock Margin="0,20,0,0" Text="Сертификат" />
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="70*"/>
-                                    <ColumnDefinition Width="30*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBox IsReadOnly="True" IsReadOnlyCaretVisible="True" Grid.Column="0" Text="{Binding DecryptingCertificate.Subject, Mode=OneWay}"/>
-                                <Button Grid.Column="1" Content="Выбрать" Command="{Binding ChooseCertificateForDecryptingCommand}"/>
-                            </Grid>
                         </StackPanel>
                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
                             <Button Content="Расшифровать" Command="{Binding DecryptCommand}"/>
@@ -132,6 +123,24 @@
                         DisplayMemberPath="Name"
                         SelectedValue="{Binding SelectedCryptoAlgorithm}"
                         />
+                <TextBlock Text="Сертификат собеседника" Margin="0,20,0,0"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70*"/>
+                        <ColumnDefinition Width="30*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox IsReadOnly="True" IsReadOnlyCaretVisible="True" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding PartnerCertificate.Subject, Mode=OneWay}"/>
+                    <Button Grid.Column="1" Content="Выбрать" Command="{Binding ChooseCertificateForEncryptingCommand}"/>
+                </Grid>
+                <TextBlock Margin="0,20,0,0" Text="Ваш сертификат" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70*"/>
+                        <ColumnDefinition Width="30*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox IsReadOnly="True" IsReadOnlyCaretVisible="True" Grid.Column="0" Text="{Binding OwnCertificate.Subject, Mode=OneWay}"/>
+                    <Button Grid.Column="1" Content="Выбрать" Command="{Binding ChooseCertificateForDecryptingCommand}"/>
+                </Grid>
             </StackPanel>
         </Grid>
     </DockPanel>

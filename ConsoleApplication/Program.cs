@@ -5,6 +5,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Core;
+using Core.CryptoAlgorithms;
 
 namespace ConsoleApplication
 {
@@ -18,11 +19,28 @@ namespace ConsoleApplication
             foreach (var cer in cers)
             {
                 int pubKeySize = cer.GetPublicKeyString().Length * sizeof(char);
-                Console.WriteLine($"Subject: {cer.Subject}\nPublic key: ({pubKeySize}) {cer.GetPublicKeyString()}\n");
+                Console.WriteLine($"\nSubject: {cer.Subject}\nPublic key: ({pubKeySize}) {cer.GetPublicKeyString()}");
+                Console.WriteLine($"Pub key size: {cer.PublicKey.Key.KeySize}");
                 //Console.WriteLine(cer.PublicKey.EncodedKeyValue.Format(false));
             }
-
+            TestDES();
             Console.ReadLine();
+        }
+
+        static void TestDES()
+        {
+            string message = "My very good message!";
+            for (int i = 0; i < 10; ++i)
+            {
+                string password = KeyGenerator.GetRandomKey(8);
+
+                var des = new DESAlgotithm();
+
+                string encrypted = des.Encrypt(message, password);
+                string decrypted = des.Decrypt(encrypted, password);
+
+                Console.WriteLine($"\n\nmessage: {message}\nencrypted: {encrypted}\ndecrypted: {decrypted}");
+            }
         }
     }
 }

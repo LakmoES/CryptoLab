@@ -10,7 +10,7 @@ namespace Core.CryptoAlgorithms
     public interface ICryptoAlgorithm
     {
         string Name { get; }
-        string Encrypt(X509Certificate2 x509, string stringToEncrypt);
-        string Decrypt(X509Certificate2 x509, string stringTodecrypt);
+        string Encrypt(string message, string password);
+        string Decrypt(string message, string password);
     }
 }

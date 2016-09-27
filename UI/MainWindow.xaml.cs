@@ -30,7 +30,7 @@ namespace UI
                 {
                     ViewShower.ShowCertSelector(new CertificateSelectWindow(), new CertificateSelectViewModel(), (cert) =>
                     {
-                        vm.EncryptingCertificate = cert;
+                        vm.PartnerCertificate = cert;
                     });
                 };
             vm.ChooseCertificateForDecrypting +=
@@ -38,7 +38,7 @@ namespace UI
                 {
                     ViewShower.ShowCertSelector(new CertificateSelectWindow(), new CertificateSelectViewModel(), (cert) =>
                     {
-                        vm.DecryptingCertificate = cert;
+                        vm.OwnCertificate = cert;
                     });
                 };
 
@@ -47,7 +47,7 @@ namespace UI
             vm.OpenEncryptedPath += (o, s) => { (DataContext as MainViewModel).EncryptedPath = OpenFile(s); };
             vm.ShowErrors += (o, enumerable) =>
             {
-                MessageBox.Show(String.Join(Environment.NewLine, enumerable), "Произошла ошибка", MessageBoxButton.OK,
+                MessageBox.Show(string.Join(Environment.NewLine, enumerable), "Произошла ошибка", MessageBoxButton.OK,
                     MessageBoxImage.Warning);
             };
         }
@@ -55,9 +55,7 @@ namespace UI
         private string OpenFile(string title)
         {
             var ofd = new OpenFileDialog { Title = title };
-            if (ofd.ShowDialog(this) == true)
-                return ofd.FileName;
-            return null;
+            return ofd.ShowDialog(this) == true ? ofd.FileName : null;
         }
     }
 }
