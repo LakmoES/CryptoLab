@@ -25,26 +25,29 @@ namespace UI
                 {
                     ViewShower.Show(new CertificatesWindow(), new CertificatesViewModel(), true, (b) => { });
                 };
-            vm.ChooseCertificateForEncrypting += 
-                (o, eventArgs) =>
+            vm.ChoosePartnerCertificate +=
+                (o, s) =>
                 {
-                    ViewShower.ShowCertSelector(new CertificateSelectWindow(), new CertificateSelectViewModel(), (cert) =>
-                    {
-                        vm.PartnerCertificate = cert;
-                    });
+                    ViewShower.ShowCertSelector(new CertificateSelectWindow(),
+                        new CertificateSelectViewModel {Title = s}, (cert) =>
+                        {
+                            vm.PartnerCertificate = cert;
+                        });
                 };
-            vm.ChooseCertificateForDecrypting +=
-                (o, eventArgs) =>
+            vm.ChooseOwnCertificate +=
+                (o, s) =>
                 {
-                    ViewShower.ShowCertSelector(new CertificateSelectWindow(), new CertificateSelectViewModel(), (cert) =>
-                    {
-                        vm.OwnCertificate = cert;
-                    });
+                    ViewShower.ShowCertSelector(new CertificateSelectWindow(),
+                        new CertificateSelectViewModel {Title = s}, (cert) =>
+                        {
+                            vm.OwnCertificate = cert;
+                        });
                 };
 
-            vm.OpenSessionFilePath += (o, s) => { (DataContext as MainViewModel).SessionFilePath = OpenFile(s); };
+            vm.OpenSessionFileDecryptingPath += (o, s) => { (DataContext as MainViewModel).SessionFileDecryptingPath = OpenFile(s); };
             vm.OpenOriginalPath += (o, s) => { (DataContext as MainViewModel).OriginalPath = OpenFile(s); };
             vm.OpenEncryptedPath += (o, s) => { (DataContext as MainViewModel).EncryptedPath = OpenFile(s); };
+            vm.OpenSessionFileEncryptingPath += (o, s) => { (DataContext as MainViewModel).SessionFileEncryptingPath = OpenFile(s); };
             vm.ShowErrors += (o, enumerable) =>
             {
                 MessageBox.Show(string.Join(Environment.NewLine, enumerable), "Произошла ошибка", MessageBoxButton.OK,

@@ -51,24 +51,23 @@ namespace Core.ViewModel
         private RelayCommand _chooseEncryptedFileCommand;
         public ICommand ChooseEncryptedFileCommand => _chooseEncryptedFileCommand ?? (_chooseEncryptedFileCommand = new RelayCommand(() => RaiseOpenEncryptedPath("Зашифрованный файл")));
 
-        private RelayCommand _chooseSessionFileCommand;
-        public ICommand ChooseSessionFileCommand => _chooseSessionFileCommand ?? (_chooseSessionFileCommand = new RelayCommand(() => RaiseOpenSessionFilePath("Файл сессионного ключа")));
+        private RelayCommand _chooseSessionFileDecryptingCommand;
+        public ICommand ChooseSessionFileDecryptingCommand => _chooseSessionFileDecryptingCommand ?? (_chooseSessionFileDecryptingCommand = new RelayCommand(() => RaiseOpenSessionFileDecryptingPath("Сессионный ключ для дешифрования")));
 
         private RelayCommand _showCersCommand;
         public ICommand ShowCersCommand => _showCersCommand ?? (_showCersCommand = new RelayCommand(RaiseShowCers));
 
-        private RelayCommand _chooseCertificateForEncryptingCommand;
-
-        public ICommand ChooseCertificateForEncryptingCommand
+        private RelayCommand _choosePartnerCertificateCommand;
+        public ICommand ChoosePartnerCertificateCommand
             =>
-                _chooseCertificateForEncryptingCommand ??
-                (_chooseCertificateForEncryptingCommand = new RelayCommand(RaiseChooseCertificateForEncrypting));
+                _choosePartnerCertificateCommand ??
+                (_choosePartnerCertificateCommand = new RelayCommand(() => RaiseChoosePartnerCertificate("Сертификат партнера")));
 
-        private RelayCommand _chooseCertificateForDecryptingCommand;
-        public ICommand ChooseCertificateForDecryptingCommand
+        private RelayCommand _chooseOwnCertificateCommand;
+        public ICommand ChooseOwnCertificateCommand
             =>
-                _chooseCertificateForDecryptingCommand ??
-                (_chooseCertificateForDecryptingCommand = new RelayCommand(RaiseChooseCertificateForDecrypting));
+                _chooseOwnCertificateCommand ??
+                (_chooseOwnCertificateCommand = new RelayCommand(() => RaiseChooseOwnCertificate("Ваш сертификат")));
 
         private RelayCommand _encryptCommand;
         public ICommand EncryptCommand => _encryptCommand ?? (_encryptCommand = new RelayCommand(async () => await Task.Run(() => StartEncrypt())));
@@ -76,10 +75,10 @@ namespace Core.ViewModel
         private RelayCommand _decryptCommand;
         public ICommand DecryptCommand => _decryptCommand ?? (_decryptCommand = new RelayCommand(async () => await Task.Run(() => StartDecrypt())));
 
-        private RelayCommand _chooseSessionFileForEncryptingCommand;
+        private RelayCommand _chooseSessionFileEncryptingCommand;
 
-        public ICommand ChooseSessionFileForEncryptingCommand
-            => _chooseSessionFileForEncryptingCommand ?? (_chooseSessionFileForEncryptingCommand = new RelayCommand(() => RaiseOpenSessionFileForEncryptingPath("Сессионный ключ для шифрования")));
+        public ICommand ChooseSessionFileEncryptingCommand
+            => _chooseSessionFileEncryptingCommand ?? (_chooseSessionFileEncryptingCommand = new RelayCommand(() => RaiseOpenSessionFileEncryptingPath("Сессионный ключ для шифрования")));
         #endregion
 
         #region Events
@@ -103,30 +102,30 @@ namespace Core.ViewModel
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
                     ShowCers?.Invoke(this, EventArgs.Empty));
         }
-        public event EventHandler ChooseCertificateForEncrypting;
-        private void RaiseChooseCertificateForEncrypting()
+        public event EventHandler<string> ChoosePartnerCertificate;
+        private void RaiseChoosePartnerCertificate(string title)
         {
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
-                    ChooseCertificateForEncrypting?.Invoke(this, EventArgs.Empty));
+                    ChoosePartnerCertificate?.Invoke(this, title));
         }
-        public event EventHandler ChooseCertificateForDecrypting;
-        private void RaiseChooseCertificateForDecrypting()
+        public event EventHandler<string> ChooseOwnCertificate;
+        private void RaiseChooseOwnCertificate(string title)
         {
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
-                    ChooseCertificateForDecrypting?.Invoke(this, EventArgs.Empty));
+                    ChooseOwnCertificate?.Invoke(this, title));
         }
-        public event EventHandler<string> OpenSessionFilePath;
-        private void RaiseOpenSessionFilePath(string title)
+        public event EventHandler<string> OpenSessionFileDecryptingPath;
+        private void RaiseOpenSessionFileDecryptingPath(string title)
         {
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
-                    OpenSessionFilePath?.Invoke(this, title));
+                    OpenSessionFileDecryptingPath?.Invoke(this, title));
         }
 
-        public event EventHandler<string> OpenSessionFileForEncryptingPath;
-        private void RaiseOpenSessionFileForEncryptingPath(string title)
+        public event EventHandler<string> OpenSessionFileEncryptingPath;
+        private void RaiseOpenSessionFileEncryptingPath(string title)
         {
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
-                    OpenSessionFileForEncryptingPath?.Invoke(this, title));
+                    OpenSessionFileEncryptingPath?.Invoke(this, title));
         }
 
         public event EventHandler<IEnumerable<string>> ShowErrors;
@@ -146,8 +145,8 @@ namespace Core.ViewModel
         private X509Certificate2 _ownCertificate;
         private string _originalPath;
         private ICryptoAlgorithm _selectedCryptoAlgorithm;
-        private string _sessionFilePath;
-        private string _sessionFileForEncryptingPath;
+        private string _sessionFileDecryptingPath;
+        private string _sessionFileEncryptingPath;
         private string _encryptedPath;
         #endregion
 
@@ -207,24 +206,24 @@ namespace Core.ViewModel
             }
             get { return _originalPath; }
         }
-        public string SessionFilePath
+        public string SessionFileDecryptingPath
         {
             set
             {
-                _sessionFilePath = value;
-                RaisePropertyChanged(() => SessionFilePath);
+                _sessionFileDecryptingPath = value;
+                RaisePropertyChanged(() => SessionFileDecryptingPath);
             }
-            get { return _sessionFilePath; }
+            get { return _sessionFileDecryptingPath; }
         }
 
-        public string SessionFileForEncryptingPath
+        public string SessionFileEncryptingPath
         {
             set
             {
-                _sessionFileForEncryptingPath = value;
-                RaisePropertyChanged(() => SessionFileForEncryptingPath);
+                _sessionFileEncryptingPath = value;
+                RaisePropertyChanged(() => SessionFileEncryptingPath);
             }
-            get { return _sessionFileForEncryptingPath; }
+            get { return _sessionFileEncryptingPath; }
         }
         public string EncryptedPath
         {
@@ -267,7 +266,7 @@ namespace Core.ViewModel
                 errorList.Add("Не указан сертификат для шифрования");
             if (SelectedCryptoAlgorithm == null)
                 errorList.Add("Не указан алгоритм шифрования");
-            if (!string.IsNullOrEmpty(SessionFileForEncryptingPath) && OwnCertificate == null)
+            if (!string.IsNullOrEmpty(SessionFileEncryptingPath) && OwnCertificate == null)
                 errorList.Add("Укажите Ваш сертификат");
             if (errorList.Count > 0)
             {
@@ -287,10 +286,10 @@ namespace Core.ViewModel
             errorList = new List<string>();
             string sessionKey;
 
-            if (string.IsNullOrEmpty(SessionFileForEncryptingPath))
+            if (string.IsNullOrEmpty(SessionFileEncryptingPath))
                 sessionKey = KeyGenerator.GetRandomKey(1024);
             else
-                sessionKey = ImportKeyFromFile(OwnCertificate, SessionFileForEncryptingPath);
+                sessionKey = ImportKeyFromFile(OwnCertificate, SessionFileEncryptingPath);
 
             var rsa = new RSAAlgorithm();
             var encryptedSessionKey = rsa.Encrypt(PartnerCertificate, sessionKey);
@@ -303,7 +302,7 @@ namespace Core.ViewModel
             List<string> errorList = new List<string>();
             if (string.IsNullOrEmpty(EncryptedPath))
                 errorList.Add("Не задан файл для дешифрования");
-            if(string.IsNullOrEmpty(SessionFilePath))
+            if(string.IsNullOrEmpty(SessionFileDecryptingPath))
                 errorList.Add("Файл с сессионным ключем не указан");
             if(OwnCertificate == null)
                 errorList.Add("Не указан сертификат для дешифрования");
