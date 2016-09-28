@@ -56,7 +56,13 @@ namespace UI
                 if (!string.IsNullOrEmpty(vm.TargetEncryptedFilePath))
                     _vm.EncryptPart2Command.Execute(null);
             };
-            vm.SelectTargetDecryptedPath += (o, s) => { (DataContext as MainViewModel).TargetDecryptedFilePath = ShowSaveFileDialog(s); };
+            vm.SelectTargetDecryptedPath += (o, s) =>
+            {
+                MainViewModel _vm = (DataContext as MainViewModel);
+                _vm.TargetDecryptedFilePath = ShowSaveFileDialog(s);
+                if (!string.IsNullOrEmpty(vm.TargetDecryptedFilePath))
+                    _vm.DecryptPart2Command.Execute(null);
+            };
             vm.SelectTargetSessionPath += (o, s) => { (DataContext as MainViewModel).TargetSessionFilePath = ShowSaveFileDialog(s); };
 
             vm.ShowErrors += (o, enumerable) =>

@@ -74,7 +74,7 @@ namespace Core.ViewModel
         public ICommand EncryptCommand
             =>
                 _encryptCommand ??
-                (_encryptCommand = new RelayCommand(/*async () => await Task.Run(() => PreEncryptingCheck())*/() => PreEncryptingCheck()));
+                (_encryptCommand = new RelayCommand(() => PreEncryptingCheck()));
 
         private RelayCommand _encryptPart2Command;
 
@@ -84,7 +84,10 @@ namespace Core.ViewModel
                 (_encryptPart2Command = new RelayCommand(async () => await Task.Run(() => StartEncrypt())));
 
         private RelayCommand _decryptCommand;
-        public ICommand DecryptCommand => _decryptCommand ?? (_decryptCommand = new RelayCommand(async () => await Task.Run(() => StartDecrypt())));
+        public ICommand DecryptCommand => _decryptCommand ?? (_decryptCommand = new RelayCommand(() => PreDecryptCheck()));
+
+        private RelayCommand _decryptPart2Command;
+        public ICommand DecryptPart2Command => _decryptPart2Command ?? (_decryptPart2Command = new RelayCommand(async () => await Task.Run(() => StartDecrypt())));
 
         private RelayCommand _chooseSessionFileEncryptingCommand;
         public ICommand ChooseSessionFileEncryptingCommand
@@ -352,10 +355,10 @@ namespace Core.ViewModel
 
         private bool StartEncrypt()
         {
-            List<string> errorList = new List<string>();
+            List<string> errorList;
             Status = "Идет шифрование...";
             if (
-                !CryptoProcessor.Encrypt(out errorList, TargetEncryptedFilePath, TargetSessionFilePath, OriginalPath,
+                !CryptoProcessor.Encrypt(out errorList, SelectedCryptoAlgorithm, TargetEncryptedFilePath, TargetSessionFilePath, OriginalPath,
                     SessionFileEncryptingPath, OwnCertificate, PartnerCertificate))
                 RaiseShowErrors(errorList.ToArray());
             Status = "Свободен";
@@ -363,16 +366,15 @@ namespace Core.ViewModel
             return errorList.Count <= 0;
         }
 
-
-        private bool StartDecrypt()
+        private bool PreDecryptCheck()
         {
             IsEnabled = false;
             List<string> errorList = new List<string>();
             if (string.IsNullOrEmpty(EncryptedPath))
                 errorList.Add("Не задан файл для дешифрования");
-            if(string.IsNullOrEmpty(SessionFileDecryptingPath))
+            if (string.IsNullOrEmpty(SessionFileDecryptingPath))
                 errorList.Add("Файл с сессионным ключем не указан");
-            if(OwnCertificate == null)
+            if (OwnCertificate == null)
                 errorList.Add("Не указан сертификат для дешифрования");
             if (SelectedCryptoAlgorithm == null)
                 errorList.Add("Не указан алгоритм шифрования");
@@ -382,10 +384,32 @@ namespace Core.ViewModel
                 IsEnabled = true;
                 return false;
             }
+
+            RaiseSelectTargetDecryptedPath("Расшифрованный файл");
+            if (string.IsNullOrEmpty(TargetDecryptedFilePath))
+                errorList.Add("Вы не выбрали место сохрания файла");
+
+            if (errorList.Count > 0)
+            {
+                RaiseShowErrors(errorList.ToArray());
+                IsEnabled = true;
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool StartDecrypt()
+        {
+            List<string> errorList;
             Status = "Идет дешифрование...";
             Thread.Sleep(1000);
             Status = "Свободен";
             IsEnabled = true;
+
+            if(!CryptoProcessor.Decrypt(out errorList, SelectedCryptoAlgorithm, TargetDecryptedFilePath, EncryptedPath, SessionFileDecryptingPath,
+                OwnCertificate))
+                RaiseShowErrors(errorList.ToArray());
 
             return errorList.Count <= 0;
         }

@@ -41,12 +41,12 @@ namespace CoreTests
         {
             string message = "Hello world!";
             string password = "password";
-
             var des = new DESAlgotithm();
 
             var encrypted = des.Encrypt(message, password);
-            Assert.AreNotEqual(message, encrypted, "encrypted and message are equal!");
             var decrypted = des.Decrypt(encrypted, password);
+
+            Assert.AreNotEqual(message, encrypted, "encrypted and message are equal!");
             Assert.AreEqual(message, decrypted, "message and decrypted are not equal!");
         }
     }

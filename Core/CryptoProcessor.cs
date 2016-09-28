@@ -36,7 +36,7 @@ namespace Core
             File.WriteAllText(path, message);
         }
 
-        public static bool Encrypt(out List<string> errorList, string targetMessageFile, string targetSessionFile, string messagePath, string sessionFileEncryptingPath, X509Certificate2 ownCertificate, X509Certificate2 partnerCertificate)
+        public static bool Encrypt(out List<string> errorList, ICryptoAlgorithm cryptoAlgorithm, string targetMessageFile, string targetSessionFile, string messagePath, string sessionFileEncryptingPath, X509Certificate2 ownCertificate, X509Certificate2 partnerCertificate)
         {
             errorList = new List<string>();
             string sessionKey;
@@ -78,12 +78,56 @@ namespace Core
                 return false;
             }
 
-            var des = new DESAlgotithm();
-            var encryptedMessage = des.Encrypt(message, sessionKey);
+            var encryptedMessage = cryptoAlgorithm.Encrypt(message, sessionKey);
 
             SaveFile(encryptedMessage, targetMessageFile);
             if (!string.IsNullOrEmpty(targetSessionFile))
                 SaveFile(encryptedSessionKey, targetSessionFile);
+
+            return true;
+        }
+
+        public static bool Decrypt(out List<string> errorList, ICryptoAlgorithm cryptoAlgorithm, string targetDecryptedFile,
+            string cryptedPath, string sessionFilePath, X509Certificate2 ownCertificate)
+        {
+            errorList = new List<string>();
+
+            string cryptedSessionKey;
+            try
+            {
+                cryptedSessionKey = ReadFile(sessionFilePath);
+            }
+            catch (FileNotFoundException ex)
+            {
+                errorList.Add(ex.Message);
+                return false;
+            }
+
+            var rsa = new RSAAlgorithm();
+            var sessionKey = rsa.Decrypt(ownCertificate, cryptedSessionKey);
+
+            string cryptedMessage;
+            try
+            {
+                cryptedMessage = ReadFile(cryptedPath);
+            }
+            catch (FileNotFoundException ex)
+            {
+                errorList.Add(ex.Message);
+                return false;
+            }
+            
+            var message = cryptoAlgorithm.Decrypt(cryptedMessage, sessionKey);
+
+            try
+            {
+                SaveFile(message, targetDecryptedFile);
+            }
+            catch (Exception ex)
+            {
+                errorList.Add(ex.Message);
+                return false;
+            }
 
             return true;
         }
