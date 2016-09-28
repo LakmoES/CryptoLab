@@ -41,7 +41,7 @@ namespace CoreTests
         {
             string message = "Hello world!";
             string password = "password";
-            var des = new DESAlgotithm();
+            var des = new DESAlgorithm();
 
             var encrypted = des.Encrypt(message, password);
             var decrypted = des.Decrypt(encrypted, password);

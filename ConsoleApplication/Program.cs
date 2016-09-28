@@ -34,7 +34,7 @@ namespace ConsoleApplication
             {
                 string password = KeyGenerator.GetRandomKey(8);
 
-                var des = new DESAlgotithm();
+                var des = new DESAlgorithm();
 
                 string encrypted = des.Encrypt(message, password);
                 string decrypted = des.Decrypt(encrypted, password);

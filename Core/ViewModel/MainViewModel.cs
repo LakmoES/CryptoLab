@@ -40,7 +40,7 @@ namespace Core.ViewModel
 
             CryptoAlgorithms = new ObservableCollection<ICryptoAlgorithm>
             {
-                new DESAlgotithm()
+                new DESAlgorithm()
             };
         }
 

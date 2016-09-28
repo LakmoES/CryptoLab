@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Core.CryptoAlgorithms
 {
-    public class DESAlgotithm : ICryptoAlgorithm
+    public class DESAlgorithm : ICryptoAlgorithm
     {
         public string Name => "DES";
 
