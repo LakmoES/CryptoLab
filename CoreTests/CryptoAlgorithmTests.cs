@@ -23,6 +23,7 @@ namespace CoreTests
         public void TestRsaEncryptDecrypt()
         {
             string message = "Hello world!";
+            message = KeyGenerator.GetRandomKey(117); //118 is not working. WHY??!??!?
             var cersArray = GetX509Certificates();
 
             X509Certificate2 certificate = cersArray.FirstOrDefault(x => x.Subject.Contains("lakmoes@onu.edu.ua"));
