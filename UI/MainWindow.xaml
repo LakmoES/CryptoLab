@@ -123,6 +123,11 @@
                         DisplayMemberPath="Name"
                         SelectedValue="{Binding SelectedCryptoAlgorithm}"
                         />
+                <TextBlock Margin="0,3,0,0" Text="Длина ключа"/>
+                <ComboBox 
+                        ItemsSource="{Binding SelectedCryptoAlgorithm.KeySizeCollection}"
+                        SelectedValue="{Binding KeySize}"
+                        />
                 <TextBlock Text="Сертификат собеседника" Margin="0,20,0,0"/>
                 <Grid>
                     <Grid.ColumnDefinitions>

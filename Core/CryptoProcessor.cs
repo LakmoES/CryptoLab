@@ -36,13 +36,13 @@ namespace Core
             File.WriteAllText(path, message);
         }
 
-        public static bool Encrypt(out List<string> errorList, ICryptoAlgorithm cryptoAlgorithm, string targetMessageFile, string targetSessionFile, string messagePath, string sessionFileEncryptingPath, X509Certificate2 ownCertificate, X509Certificate2 partnerCertificate)
+        public static bool Encrypt(out List<string> errorList, ICryptoAlgorithm cryptoAlgorithm, int keySize, string targetMessageFile, string targetSessionFile, string messagePath, string sessionFileEncryptingPath, X509Certificate2 ownCertificate, X509Certificate2 partnerCertificate)
         {
             errorList = new List<string>();
             string sessionKey;
 
             if (string.IsNullOrEmpty(sessionFileEncryptingPath))
-                sessionKey = KeyGenerator.GetRandomKey(8);
+                sessionKey = KeyGenerator.GetRandomKey(keySize/8);
             else
             {
                 try

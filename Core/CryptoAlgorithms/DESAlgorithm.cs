@@ -13,10 +13,18 @@ namespace Core.CryptoAlgorithms
     {
         public string Name => "DES";
 
+        public ICollection<int> KeySizeCollection => new List<int>
+        {
+            64
+        };
+
         public string Encrypt(string message, string password)
         {
             // Encode message and password
-            byte[] messageBytes = ASCIIEncoding.ASCII.GetBytes(message);
+            //byte[] messageBytes = ASCIIEncoding.ASCII.GetBytes(message);
+            //byte[] passwordBytes = ASCIIEncoding.ASCII.GetBytes(password);
+
+            byte[] messageBytes = ASCIIEncoding.Default.GetBytes(message);
             byte[] passwordBytes = ASCIIEncoding.ASCII.GetBytes(password);
 
             // Set encryption settings -- Use password for both key and init. vector
@@ -64,7 +72,7 @@ namespace Core.CryptoAlgorithms
             memStream.Read(decryptedMessageBytes, 0, decryptedMessageBytes.Length);
 
             // Encode deencrypted binary data to base64 string
-            string message = ASCIIEncoding.ASCII.GetString(decryptedMessageBytes);
+            string message = ASCIIEncoding.Default.GetString(decryptedMessageBytes);
 
             return message;
         }

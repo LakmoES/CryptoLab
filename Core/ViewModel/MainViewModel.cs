@@ -183,6 +183,7 @@ namespace Core.ViewModel
         private string _targetEncryptedFilePath;
         private string _targetSessionFilePath;
         private string _targetDecryptedFilePath;
+        private int? _keySize;
         #endregion
 
         #region Public Properties
@@ -311,6 +312,16 @@ namespace Core.ViewModel
             }
             get { return _selectedCryptoAlgorithm; }
         }
+
+        public int? KeySize
+        {
+            set
+            {
+                _keySize = value;
+                RaisePropertyChanged(() => KeySize);
+            }
+            get { return _keySize; }
+        }
         #endregion
 
         private bool PreEncryptingCheck()
@@ -323,6 +334,8 @@ namespace Core.ViewModel
                 errorList.Add("Не указан сертификат для шифрования");
             if (SelectedCryptoAlgorithm == null)
                 errorList.Add("Не указан алгоритм шифрования");
+            if (KeySize == null)
+                errorList.Add("Не указана длина ключа");
             if (!string.IsNullOrEmpty(SessionFileEncryptingPath) && OwnCertificate == null)
                 errorList.Add("Укажите Ваш сертификат");
             if (errorList.Count > 0)
@@ -358,7 +371,7 @@ namespace Core.ViewModel
             List<string> errorList;
             Status = "Идет шифрование...";
             if (
-                !CryptoProcessor.Encrypt(out errorList, SelectedCryptoAlgorithm, TargetEncryptedFilePath, TargetSessionFilePath, OriginalPath,
+                !CryptoProcessor.Encrypt(out errorList, SelectedCryptoAlgorithm, (int)KeySize, TargetEncryptedFilePath, TargetSessionFilePath, OriginalPath,
                     SessionFileEncryptingPath, OwnCertificate, PartnerCertificate))
                 RaiseShowErrors(errorList.ToArray());
             Status = "Свободен";
