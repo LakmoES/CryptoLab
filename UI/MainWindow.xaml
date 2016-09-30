@@ -117,12 +117,28 @@
                 </TabItem>
             </TabControl>
             <StackPanel Grid.Column="1" Margin="5">
-                <TextBlock Text="Алгоритм"/>
-                <ComboBox 
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="45*"/>
+                        <ColumnDefinition Width="10*"/>
+                        <ColumnDefinition Width="45*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Алгоритм"/>
+                    <ComboBox Grid.Row="1" Grid.Column="0"
                         ItemsSource="{Binding CryptoAlgorithms}"
                         DisplayMemberPath="Name"
                         SelectedValue="{Binding SelectedCryptoAlgorithm}"
                         />
+                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Режим"/>
+                    <ComboBox Grid.Row="1" Grid.Column="2"
+                        ItemsSource="{Binding SelectedCryptoAlgorithm.CryptoModes}"
+                        SelectedValue="{Binding SelectedCryptoAlgorithm.CryptoMode}"
+                        />
+                </Grid>
                 <TextBlock Margin="0,3,0,0" Text="Длина ключа"/>
                 <ComboBox 
                         ItemsSource="{Binding SelectedCryptoAlgorithm.KeySizeCollection}"

@@ -44,11 +44,16 @@ namespace CoreTests
             string password = "password";
             var des = new DESAlgorithm();
 
-            var encrypted = des.Encrypt(message, password);
-            var decrypted = des.Decrypt(encrypted, password);
+            foreach (var cryptoMode in des.CryptoModes)
+            {
+                des.CryptoMode = cryptoMode;
 
-            Assert.AreNotEqual(message, encrypted, "encrypted and message are equal!");
-            Assert.AreEqual(message, decrypted, "message and decrypted are not equal!");
+                var encrypted = des.Encrypt(message, password);
+                var decrypted = des.Decrypt(encrypted, password);
+
+                Assert.AreNotEqual(message, encrypted, "encrypted and message are equal!");
+                Assert.AreEqual(message, decrypted, "message and decrypted are not equal!");
+            }
         }
     }
 }

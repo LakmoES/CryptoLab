@@ -11,12 +11,25 @@ namespace Core.CryptoAlgorithms
 {
     public class DESAlgorithm : ICryptoAlgorithm
     {
+        public DESAlgorithm()
+        {
+            KeySizeCollection = new List<int>
+            {
+                64
+            };
+            CryptoModes = new List<CipherMode>
+            {
+                CipherMode.CBC,
+                CipherMode.ECB
+            };
+        }
         public string Name => "DES";
 
-        public ICollection<int> KeySizeCollection => new List<int>
-        {
-            64
-        };
+        public ICollection<int> KeySizeCollection { get; }
+
+        public CipherMode? CryptoMode { set; get; }
+
+        public ICollection<CipherMode> CryptoModes { get; }
 
         public string Encrypt(string message, string password)
         {
@@ -29,6 +42,7 @@ namespace Core.CryptoAlgorithms
 
             // Set encryption settings -- Use password for both key and init. vector
             DESCryptoServiceProvider provider = new DESCryptoServiceProvider();
+            provider.Mode = (CipherMode) CryptoMode;
             ICryptoTransform transform = provider.CreateEncryptor(passwordBytes, passwordBytes);
             CryptoStreamMode mode = CryptoStreamMode.Write;
 
@@ -57,6 +71,7 @@ namespace Core.CryptoAlgorithms
 
             // Set encryption settings -- Use password for both key and init. vector
             DESCryptoServiceProvider provider = new DESCryptoServiceProvider();
+            provider.Mode = (CipherMode) CryptoMode;
             ICryptoTransform transform = provider.CreateDecryptor(passwordBytes, passwordBytes);
             CryptoStreamMode mode = CryptoStreamMode.Write;
 

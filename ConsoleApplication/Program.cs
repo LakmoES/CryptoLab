@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,9 @@ namespace ConsoleApplication
     {
         static void Main(string[] args)
         {
+            var des = new DESAlgorithm();
+            Console.WriteLine(des.CryptoModes.First().ToString());
+            Console.ReadLine();
             var cers = CertRepository.GetCertificates();
             Console.WriteLine($"MY repository: {cers.Count}");
 

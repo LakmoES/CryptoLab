@@ -334,6 +334,11 @@ namespace Core.ViewModel
                 errorList.Add("Не указан сертификат для шифрования");
             if (SelectedCryptoAlgorithm == null)
                 errorList.Add("Не указан алгоритм шифрования");
+            else
+            {
+                if (SelectedCryptoAlgorithm.CryptoMode == null)
+                    errorList.Add("Укажите режим шифрования");
+            }
             if (KeySize == null)
                 errorList.Add("Не указана длина ключа");
             if (!string.IsNullOrEmpty(SessionFileEncryptingPath) && OwnCertificate == null)
@@ -391,6 +396,11 @@ namespace Core.ViewModel
                 errorList.Add("Не указан сертификат для дешифрования");
             if (SelectedCryptoAlgorithm == null)
                 errorList.Add("Не указан алгоритм шифрования");
+            else
+            {
+                if (SelectedCryptoAlgorithm.CryptoMode == null)
+                    errorList.Add("Укажите режим шифрования");
+            }
             if (errorList.Count > 0)
             {
                 RaiseShowErrors(errorList.ToArray());
