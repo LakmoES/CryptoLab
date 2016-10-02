@@ -14,9 +14,6 @@ namespace ConsoleApplication
     {
         static void Main(string[] args)
         {
-            var des = new DESAlgorithm();
-            Console.WriteLine(des.CryptoModes.First().ToString());
-            Console.ReadLine();
             var cers = CertRepository.GetCertificates();
             Console.WriteLine($"MY repository: {cers.Count}");
 

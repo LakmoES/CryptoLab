@@ -11,8 +11,11 @@ namespace Core.CryptoAlgorithms
 {
     public class DESAlgorithm : ICryptoAlgorithm
     {
+        private readonly DESCryptoServiceProvider _provider;
         public DESAlgorithm()
         {
+            Name = "DES";
+            _provider = new DESCryptoServiceProvider();
             KeySizeCollection = new List<int>
             {
                 64
@@ -23,27 +26,26 @@ namespace Core.CryptoAlgorithms
                 CipherMode.ECB
             };
         }
-        public string Name => "DES";
+        public string Name { get; }
 
         public ICollection<int> KeySizeCollection { get; }
 
-        public CipherMode? CryptoMode { set; get; }
+        public CipherMode? CryptoMode
+        {
+            set { _provider.Mode = (CipherMode) value; }
+            get { return _provider.Mode; }
+        }
 
         public ICollection<CipherMode> CryptoModes { get; }
 
         public string Encrypt(string message, string password)
         {
             // Encode message and password
-            //byte[] messageBytes = ASCIIEncoding.ASCII.GetBytes(message);
-            //byte[] passwordBytes = ASCIIEncoding.ASCII.GetBytes(password);
-
             byte[] messageBytes = ASCIIEncoding.Default.GetBytes(message);
             byte[] passwordBytes = ASCIIEncoding.ASCII.GetBytes(password);
 
             // Set encryption settings -- Use password for both key and init. vector
-            DESCryptoServiceProvider provider = new DESCryptoServiceProvider();
-            provider.Mode = (CipherMode) CryptoMode;
-            ICryptoTransform transform = provider.CreateEncryptor(passwordBytes, passwordBytes);
+            ICryptoTransform transform = _provider.CreateEncryptor(passwordBytes, passwordBytes);
             CryptoStreamMode mode = CryptoStreamMode.Write;
 
             // Set up streams and encrypt
@@ -70,9 +72,7 @@ namespace Core.CryptoAlgorithms
             byte[] passwordBytes = ASCIIEncoding.ASCII.GetBytes(password);
 
             // Set encryption settings -- Use password for both key and init. vector
-            DESCryptoServiceProvider provider = new DESCryptoServiceProvider();
-            provider.Mode = (CipherMode) CryptoMode;
-            ICryptoTransform transform = provider.CreateDecryptor(passwordBytes, passwordBytes);
+            ICryptoTransform transform = _provider.CreateDecryptor(passwordBytes, passwordBytes);
             CryptoStreamMode mode = CryptoStreamMode.Write;
 
             // Set up streams and decrypt

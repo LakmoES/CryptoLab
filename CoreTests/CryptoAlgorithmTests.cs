@@ -44,6 +44,9 @@ namespace CoreTests
             string password = "password";
             var des = new DESAlgorithm();
 
+            if (des.CryptoModes.Count <= 0)
+                Assert.Fail("des.CryptoModes.Count <= 0");
+
             foreach (var cryptoMode in des.CryptoModes)
             {
                 des.CryptoMode = cryptoMode;
