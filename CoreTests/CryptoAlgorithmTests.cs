@@ -58,5 +58,27 @@ namespace CoreTests
                 Assert.AreEqual(message, decrypted, "message and decrypted are not equal!");
             }
         }
+
+        [TestMethod]
+        public void TestAesEncryptDecrypt()
+        {
+            string message = "Hello world!";
+            string password = "passwordpasswordpasswordpassword";
+            var aes = new AESAlgorithm();
+
+            if (aes.CryptoModes.Count <= 0)
+                Assert.Fail("aes.CryptoModes.Count <= 0");
+
+            foreach (var cryptoMode in aes.CryptoModes)
+            {
+                aes.CryptoMode = cryptoMode;
+
+                var encrypted = aes.Encrypt(message, password);
+                var decrypted = aes.Decrypt(encrypted, password);
+
+                Assert.AreNotEqual(message, encrypted, "encrypted and message are equal!");
+                Assert.AreEqual(message, decrypted, "message and decrypted are not equal!");
+            }
+        }
     }
 }
