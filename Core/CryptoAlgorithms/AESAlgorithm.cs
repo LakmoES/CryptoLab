@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Core.CryptoAlgorithms.Interfaces;
 
 namespace Core.CryptoAlgorithms
 {
@@ -17,12 +18,15 @@ namespace Core.CryptoAlgorithms
             _provider = new AesCryptoServiceProvider();
             KeySizeCollection = new List<int>
             {
+                128,
+                192,
                 256
             };
             CryptoModes = new List<CipherMode>
             {
                 CipherMode.CBC,
-                CipherMode.ECB
+                CipherMode.ECB,
+                CipherMode.CFB
             };
         }
         public string Name { get; }
@@ -47,7 +51,7 @@ namespace Core.CryptoAlgorithms
             string plaintext = null;
 
             _provider.Key = ASCIIEncoding.ASCII.GetBytes(password);
-            _provider.IV = ASCIIEncoding.ASCII.GetBytes(password.Substring(0, password.Length/2));
+            _provider.IV = ASCIIEncoding.ASCII.GetBytes(password.Substring(0, 16/*password.Length/2*/));
 
 
             ICryptoTransform decryptor = _provider.CreateDecryptor(_provider.Key, _provider.IV);
@@ -70,7 +74,7 @@ namespace Core.CryptoAlgorithms
 
 
             _provider.Key = ASCIIEncoding.ASCII.GetBytes(password);
-            _provider.IV = ASCIIEncoding.ASCII.GetBytes(password.Substring(0, password.Length/2));
+            _provider.IV = ASCIIEncoding.ASCII.GetBytes(password.Substring(0, 16));
 
 
             ICryptoTransform encryptor = _provider.CreateEncryptor(_provider.Key, _provider.IV);

@@ -29,7 +29,7 @@ namespace CoreTests
 
             X509Certificate2 certificate = cersArray.FirstOrDefault(x => x.Subject.Contains("lakmoes@onu.edu.ua"));
             Assert.IsNotNull(certificate, "certificate is null");
-            var rsa = new RSAAlgorithm();
+            var rsa = new RSA();
             var encrypted = rsa.Encrypt(certificate, message);
             var decrypted = rsa.Decrypt(certificate, encrypted);
 
@@ -63,21 +63,24 @@ namespace CoreTests
         public void TestAesEncryptDecrypt()
         {
             string message = "Hello world!";
-            string password = "passwordpasswordpasswordpassword";
+            string password;
             var aes = new AESAlgorithm();
 
             if (aes.CryptoModes.Count <= 0)
                 Assert.Fail("aes.CryptoModes.Count <= 0");
-
-            foreach (var cryptoMode in aes.CryptoModes)
+            foreach (int keySize in aes.KeySizeCollection)
             {
-                aes.CryptoMode = cryptoMode;
+                password = KeyGenerator.GetRandomKey(keySize/8);
+                foreach (var cryptoMode in aes.CryptoModes)
+                {
+                    aes.CryptoMode = cryptoMode;
 
-                var encrypted = aes.Encrypt(message, password);
-                var decrypted = aes.Decrypt(encrypted, password);
+                    var encrypted = aes.Encrypt(message, password);
+                    var decrypted = aes.Decrypt(encrypted, password);
 
-                Assert.AreNotEqual(message, encrypted, "encrypted and message are equal!");
-                Assert.AreEqual(message, decrypted, "message and decrypted are not equal!");
+                    Assert.AreNotEqual(message, encrypted, "encrypted and message are equal!");
+                    Assert.AreEqual(message, decrypted, "message and decrypted are not equal!");
+                }
             }
         }
     }

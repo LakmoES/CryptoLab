@@ -84,8 +84,9 @@
     <Compile Include="CertRepository.cs" />
     <Compile Include="CryptoAlgorithms\AESAlgorithm.cs" />
     <Compile Include="CryptoAlgorithms\DESAlgorithm.cs" />
-    <Compile Include="CryptoAlgorithms\ICryptoAlgorithm.cs" />
-    <Compile Include="CryptoAlgorithms\RSAAlgorithm.cs" />
+    <Compile Include="CryptoAlgorithms\Interfaces\ICryptoAlgorithm.cs" />
+    <Compile Include="CryptoAlgorithms\RSA.cs" />
+    <Compile Include="CryptoAlgorithms\SHA1.cs" />
     <Compile Include="CryptoProcessor.cs" />
     <Compile Include="KeyGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

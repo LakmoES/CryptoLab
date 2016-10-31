@@ -48,6 +48,7 @@ namespace UI
             vm.OpenOriginalPath += (o, s) => { (DataContext as MainViewModel).OriginalPath = ShowOpenFileDialog(s); };
             vm.OpenEncryptedPath += (o, s) => { (DataContext as MainViewModel).EncryptedPath = ShowOpenFileDialog(s); };
             vm.OpenSessionFileEncryptingPath += (o, s) => { (DataContext as MainViewModel).SessionFileEncryptingPath = ShowOpenFileDialog(s); };
+            vm.OpenSignaturePath += (o, s) => { (DataContext as MainViewModel).SignaturePath = ShowOpenFileDialog(s); };
 
             vm.SelectTargetEncryptedPath += (o, s) => 
             {
@@ -64,6 +65,7 @@ namespace UI
                     _vm.DecryptPart2Command.Execute(null);
             };
             vm.SelectTargetSessionPath += (o, s) => { (DataContext as MainViewModel).TargetSessionFilePath = ShowSaveFileDialog(s); };
+            vm.SelectTargetSignaturePath += (o, s) => { (DataContext as MainViewModel).TargetSignaturePath = ShowSaveFileDialog(s); };
 
             vm.ShowErrors += (o, enumerable) =>
             {

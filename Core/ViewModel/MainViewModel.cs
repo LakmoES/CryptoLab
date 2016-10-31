@@ -11,6 +11,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Core.CryptoAlgorithms;
+using Core.CryptoAlgorithms.Interfaces;
 
 namespace Core.ViewModel
 {
@@ -35,6 +36,7 @@ namespace Core.ViewModel
         {
             Title = "Шифратор";
             IsEnabled = true;
+            UseDigitalSignature = false;
 
             DispatcherHelper.Initialize();
 
@@ -93,6 +95,9 @@ namespace Core.ViewModel
         private RelayCommand _chooseSessionFileEncryptingCommand;
         public ICommand ChooseSessionFileEncryptingCommand
             => _chooseSessionFileEncryptingCommand ?? (_chooseSessionFileEncryptingCommand = new RelayCommand(() => RaiseOpenSessionFileEncryptingPath("Сессионный ключ для шифрования")));
+        private RelayCommand _chooseSignatureFileCommand;
+        public ICommand ChooseSignatureFileCommand
+            => _chooseSignatureFileCommand ?? (_chooseSignatureFileCommand = new RelayCommand(() => RaiseOpenSignaturePath("Файл с подписью")));
         #endregion
 
         #region Events
@@ -168,6 +173,19 @@ namespace Core.ViewModel
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
                     ShowErrors?.Invoke(this, errors));
         }
+
+        public event EventHandler<string> SelectTargetSignaturePath;
+        private void RaiseSelectTargetSignaturePath(string title)
+        {
+            DispatcherHelper.CheckBeginInvokeOnUI(() =>
+                    SelectTargetSignaturePath?.Invoke(this, title));
+        }
+        public event EventHandler<string> OpenSignaturePath;
+        private void RaiseOpenSignaturePath(string title)
+        {
+            DispatcherHelper.CheckBeginInvokeOnUI(() =>
+                    OpenSignaturePath?.Invoke(this, title));
+        }
         #endregion
 
         #region Private Fields
@@ -185,6 +203,9 @@ namespace Core.ViewModel
         private string _targetSessionFilePath;
         private string _targetDecryptedFilePath;
         private int? _keySize;
+        private bool _useDigitalSignature;
+        private string _targetSignaturePath;
+        private string _signaturePath;
         #endregion
 
         #region Public Properties
@@ -323,6 +344,34 @@ namespace Core.ViewModel
             }
             get { return _keySize; }
         }
+
+        public bool UseDigitalSignature
+        {
+            set
+            {
+                _useDigitalSignature = value;
+                RaisePropertyChanged(() => UseDigitalSignature);
+            }
+            get { return _useDigitalSignature; }
+        }
+        public string TargetSignaturePath
+        {
+            set
+            {
+                _targetSignaturePath = value;
+                RaisePropertyChanged(() => TargetSignaturePath);
+            }
+            get { return _targetSignaturePath; }
+        }
+        public string SignaturePath
+        {
+            set
+            {
+                _signaturePath = value;
+                RaisePropertyChanged(() => SignaturePath);
+            }
+            get { return _signaturePath; }
+        }
         #endregion
 
         private bool PreEncryptingCheck()
@@ -357,6 +406,16 @@ namespace Core.ViewModel
                 if (string.IsNullOrEmpty(TargetSessionFilePath))
                     errorList.Add("Не указан путь сохранения файла с ключом");
             }
+            if (UseDigitalSignature)
+            {
+                RaiseSelectTargetSignaturePath("Файл с подписью");
+                if (string.IsNullOrEmpty(TargetSignaturePath))
+                    errorList.Add("Неверный путь для файла подписи");
+            }
+            else
+            {
+                TargetSignaturePath = null;
+            }
             RaiseSelectTargetEncryptedPath("Зашифрованный файл");
             if (string.IsNullOrEmpty(TargetEncryptedFilePath))
                 errorList.Add("Вы не выбрали куда сохранить зашифрованный файл");
@@ -377,8 +436,9 @@ namespace Core.ViewModel
             List<string> errorList;
             Status = "Идет шифрование...";
             if (
-                !CryptoProcessor.Encrypt(out errorList, SelectedCryptoAlgorithm, (int)KeySize, TargetEncryptedFilePath, TargetSessionFilePath, OriginalPath,
-                    SessionFileEncryptingPath, OwnCertificate, PartnerCertificate))
+                !CryptoProcessor.Encrypt(out errorList, SelectedCryptoAlgorithm, (int) KeySize, TargetEncryptedFilePath,
+                    TargetSessionFilePath, OriginalPath,
+                    SessionFileEncryptingPath, OwnCertificate, PartnerCertificate, TargetSignaturePath))
                 RaiseShowErrors(errorList.ToArray());
             Status = "Свободен";
             IsEnabled = true;
@@ -432,7 +492,7 @@ namespace Core.ViewModel
             IsEnabled = true;
 
             if(!CryptoProcessor.Decrypt(out errorList, SelectedCryptoAlgorithm, TargetDecryptedFilePath, EncryptedPath, SessionFileDecryptingPath,
-                OwnCertificate))
+                OwnCertificate, PartnerCertificate, SignaturePath))
                 RaiseShowErrors(errorList.ToArray());
 
             return errorList.Count <= 0;

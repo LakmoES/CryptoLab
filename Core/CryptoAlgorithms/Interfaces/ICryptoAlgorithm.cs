@@ -7,7 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.CryptoAlgorithms
+namespace Core.CryptoAlgorithms.Interfaces
 {
     public interface ICryptoAlgorithm
     {

@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace Core.CryptoAlgorithms
 {
-    public class RSAAlgorithm
+    public class RSA
     {
 
-        public RSAAlgorithm(){}
+        public RSA(){}
         public string Name => "RSA";
         public string Encrypt(X509Certificate2 x509, string stringToEncrypt)
         {
@@ -37,6 +37,27 @@ namespace Core.CryptoAlgorithms
             byte[] plainbytes = rsa.Decrypt(bytestodecrypt, false);
             ASCIIEncoding enc = new ASCIIEncoding();
             return enc.GetString(plainbytes);
+        }
+
+        public string SignHash(X509Certificate2 x509, string stringToEncrypt)
+        {
+            if (x509 == null || string.IsNullOrEmpty(stringToEncrypt))
+                throw new Exception("A x509 certificate and string for encryption must be provided");
+
+            RSACryptoServiceProvider rsa = (RSACryptoServiceProvider)x509.PrivateKey;
+            byte[] bytesToEncrypt = Encoding.ASCII.GetBytes(stringToEncrypt);
+            byte[] encryptedBytes = rsa.SignHash(bytesToEncrypt, CryptoConfig.MapNameToOID("SHA1"));
+            return Convert.ToBase64String(encryptedBytes);
+        }
+        public bool VerifySign(X509Certificate2 x509, string stringToCheck, string signature)
+        {
+            if (x509 == null || string.IsNullOrEmpty(stringToCheck))
+                throw new Exception("A x509 certificate and string for decryption must be provided");
+
+            RSACryptoServiceProvider rsa = (RSACryptoServiceProvider)x509.PublicKey.Key;
+            byte[] bytesToCheck = Encoding.ASCII.GetBytes(stringToCheck);
+            byte[] signatureBytes = Convert.FromBase64String(signature);
+            return rsa.VerifyHash(bytesToCheck, "SHA1", signatureBytes);
         }
     }
 }

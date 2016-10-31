@@ -79,6 +79,10 @@
                                 <Button Grid.Column="1" Content="Выбрать" Command="{Binding ChooseSessionFileEncryptingCommand}"/>
                             </Grid>
                         </StackPanel>
+                        <CheckBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                  IsChecked="{Binding UseDigitalSignature}">
+                            ЭЦП
+                        </CheckBox>
                         <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" VerticalAlignment="Center">
                             <Button Content="Зашифровать" Command="{Binding EncryptCommand}"/>
                         </StackPanel>
@@ -108,6 +112,15 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBox Grid.Column="0" Text="{Binding SessionFileDecryptingPath}" />
                                 <Button Grid.Column="1" Content="Выбрать" Command="{Binding ChooseSessionFileDecryptingCommand}"/>
+                            </Grid>
+                            <TextBlock Margin="0,5,0,0" Text="Файл с подписью"/>
+                            <Grid Margin="0,5,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="70*"/>
+                                    <ColumnDefinition Width="30*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0" Text="{Binding SignaturePath}" />
+                                <Button Grid.Column="1" Content="Выбрать" Command="{Binding ChooseSignatureFileCommand}"/>
                             </Grid>
                         </StackPanel>
                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
