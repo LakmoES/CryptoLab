@@ -41,7 +41,7 @@ namespace Core
 
         public static bool Encrypt(out List<string> errorList, ICryptoAlgorithm cryptoAlgorithm, int keySize, 
             string targetMessageFile, string targetSessionFile, string messagePath, 
-            string sessionFileEncryptingPath, X509Certificate2 ownCertificate, X509Certificate2 partnerCertificate, 
+            string sessionFileEncryptingPath, X509Certificate2 ownCertificate, string targetHmacPath, X509Certificate2 partnerCertificate = null, 
             string targetSignatureFile = null)
         {
             errorList = new List<string>();
@@ -106,6 +106,20 @@ namespace Core
                 errorList.Add(ex.Message);
                 return false;
             }
+            try
+            {
+                var keyByte = Encoding.ASCII.GetBytes(sessionKey);
+                var messageByte = Encoding.Default.GetBytes(message);
+                HMACSHA1 hmacsha1 = new HMACSHA1(keyByte);
+                var hashmessage = hmacsha1.ComputeHash(messageByte);
+                string hmac1 = ByteToString(hashmessage);
+                SaveFile(hmac1, targetHmacPath);
+            }
+            catch (Exception ex)
+            {
+                errorList.Add(ex.Message);
+                return false;
+            }
 
             if (targetSignatureFile == null) return true; //ЭЦП не нужна
 
@@ -122,9 +136,15 @@ namespace Core
                 return false;
             }
         }
+        private static string ByteToString(byte[] buff)
+        {
+            string sbinary = buff.Aggregate("", (current, t) => current + t.ToString("X2"));
+
+            return (sbinary);
+        }
 
         public static bool Decrypt(out List<string> errorList, ICryptoAlgorithm cryptoAlgorithm, string targetDecryptedFile,
-            string cryptedPath, string sessionFilePath, X509Certificate2 ownCertificate, X509Certificate2 parnterCertificate = null, string signatureFilePath = null)
+            string cryptedPath, string sessionFilePath, X509Certificate2 ownCertificate, string hmacPath, X509Certificate2 parnterCertificate = null, string signatureFilePath = null)
         {
             errorList = new List<string>();
 
@@ -166,6 +186,25 @@ namespace Core
             try
             {
                 message = cryptoAlgorithm.Decrypt(cryptedMessage, sessionKey);
+            }
+            catch (Exception ex)
+            {
+                errorList.Add(ex.Message);
+                return false;
+            }
+            try
+            {
+                var keyByte = Encoding.ASCII.GetBytes(sessionKey);
+                var messageByte = Encoding.Default.GetBytes(message);
+                HMACSHA1 hmacsha1 = new HMACSHA1(keyByte);
+                var hashmessage = hmacsha1.ComputeHash(messageByte);
+                string hmacCurrent = ByteToString(hashmessage);
+                string hmacFromFile = ReadFile(hmacPath);
+                if (hmacCurrent != hmacFromFile)
+                {
+                    errorList.Add("Проверка целостности HMAC не пройдена!");
+                    return false;
+                }
             }
             catch (Exception ex)
             {

@@ -49,6 +49,7 @@ namespace UI
             vm.OpenEncryptedPath += (o, s) => { (DataContext as MainViewModel).EncryptedPath = ShowOpenFileDialog(s); };
             vm.OpenSessionFileEncryptingPath += (o, s) => { (DataContext as MainViewModel).SessionFileEncryptingPath = ShowOpenFileDialog(s); };
             vm.OpenSignaturePath += (o, s) => { (DataContext as MainViewModel).SignaturePath = ShowOpenFileDialog(s); };
+            vm.OpenHmacPath += (o, s) => { (DataContext as MainViewModel).HmacPath = ShowOpenFileDialog(s); };
 
             vm.SelectTargetEncryptedPath += (o, s) => 
             {
@@ -66,6 +67,7 @@ namespace UI
             };
             vm.SelectTargetSessionPath += (o, s) => { (DataContext as MainViewModel).TargetSessionFilePath = ShowSaveFileDialog(s); };
             vm.SelectTargetSignaturePath += (o, s) => { (DataContext as MainViewModel).TargetSignaturePath = ShowSaveFileDialog(s); };
+            vm.SelectTargetHmacPath += (o, s) => { (DataContext as MainViewModel).TargetHmacPath = ShowSaveFileDialog(s); };
 
             vm.ShowErrors += (o, enumerable) =>
             {

@@ -98,6 +98,10 @@ namespace Core.ViewModel
         private RelayCommand _chooseSignatureFileCommand;
         public ICommand ChooseSignatureFileCommand
             => _chooseSignatureFileCommand ?? (_chooseSignatureFileCommand = new RelayCommand(() => RaiseOpenSignaturePath("Файл с подписью")));
+
+        private RelayCommand _chooseHmacFileCommand;
+        public ICommand ChooseHmacFileCommand
+            => _chooseHmacFileCommand ?? (_chooseHmacFileCommand = new RelayCommand(() => RaiseOpenHmacPath("Файл HMAC")));
         #endregion
 
         #region Events
@@ -133,7 +137,12 @@ namespace Core.ViewModel
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
                     SelectTargetSessionPath?.Invoke(this, title));
         }
-
+        public event EventHandler<string> SelectTargetHmacPath;
+        private void RaiseSelectTargetHmacPath(string title)
+        {
+            DispatcherHelper.CheckBeginInvokeOnUI(() =>
+                    SelectTargetHmacPath?.Invoke(this, title));
+        }
         public event EventHandler ShowCers;
         private void RaiseShowCers()
         {
@@ -186,6 +195,12 @@ namespace Core.ViewModel
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
                     OpenSignaturePath?.Invoke(this, title));
         }
+        public event EventHandler<string> OpenHmacPath;
+        private void RaiseOpenHmacPath(string title)
+        {
+            DispatcherHelper.CheckBeginInvokeOnUI(() =>
+                    OpenHmacPath?.Invoke(this, title));
+        }
         #endregion
 
         #region Private Fields
@@ -206,6 +221,8 @@ namespace Core.ViewModel
         private bool _useDigitalSignature;
         private string _targetSignaturePath;
         private string _signaturePath;
+        private string _targetHmacPath;
+        private string _hmacPath;
         #endregion
 
         #region Public Properties
@@ -372,6 +389,25 @@ namespace Core.ViewModel
             }
             get { return _signaturePath; }
         }
+
+        public string TargetHmacPath
+        {
+            set
+            {
+                _targetHmacPath = value;
+                RaisePropertyChanged(() => TargetHmacPath);
+            }
+            get { return _targetHmacPath; }
+        }
+        public string HmacPath
+        {
+            set
+            {
+                _hmacPath = value;
+                RaisePropertyChanged(() => HmacPath);
+            }
+            get { return _hmacPath; }
+        }
         #endregion
 
         private bool PreEncryptingCheck()
@@ -411,11 +447,17 @@ namespace Core.ViewModel
                 RaiseSelectTargetSignaturePath("Файл с подписью");
                 if (string.IsNullOrEmpty(TargetSignaturePath))
                     errorList.Add("Неверный путь для файла подписи");
+                if (PartnerCertificate == null)
+                    errorList.Add("Не указан сертификат для ЭЦП");
             }
             else
             {
                 TargetSignaturePath = null;
             }
+            RaiseSelectTargetHmacPath("Файл HMAC");
+            if (string.IsNullOrEmpty(TargetHmacPath))
+                errorList.Add("Не указан путь файла HMAC");
+
             RaiseSelectTargetEncryptedPath("Зашифрованный файл");
             if (string.IsNullOrEmpty(TargetEncryptedFilePath))
                 errorList.Add("Вы не выбрали куда сохранить зашифрованный файл");
@@ -438,7 +480,7 @@ namespace Core.ViewModel
             if (
                 !CryptoProcessor.Encrypt(out errorList, SelectedCryptoAlgorithm, (int) KeySize, TargetEncryptedFilePath,
                     TargetSessionFilePath, OriginalPath,
-                    SessionFileEncryptingPath, OwnCertificate, PartnerCertificate, TargetSignaturePath))
+                    SessionFileEncryptingPath, OwnCertificate, TargetHmacPath, PartnerCertificate, TargetSignaturePath))
                 RaiseShowErrors(errorList.ToArray());
             Status = "Свободен";
             IsEnabled = true;
@@ -462,6 +504,9 @@ namespace Core.ViewModel
                 if (SelectedCryptoAlgorithm.CryptoMode == null)
                     errorList.Add("Укажите режим шифрования");
             }
+            if (string.IsNullOrEmpty(HmacPath))
+                errorList.Add("Файл с HMAC не указан");
+
             if (errorList.Count > 0)
             {
                 RaiseShowErrors(errorList.ToArray());
@@ -492,7 +537,7 @@ namespace Core.ViewModel
             IsEnabled = true;
 
             if(!CryptoProcessor.Decrypt(out errorList, SelectedCryptoAlgorithm, TargetDecryptedFilePath, EncryptedPath, SessionFileDecryptingPath,
-                OwnCertificate, PartnerCertificate, SignaturePath))
+                OwnCertificate, HmacPath, PartnerCertificate, SignaturePath))
                 RaiseShowErrors(errorList.ToArray());
 
             return errorList.Count <= 0;
