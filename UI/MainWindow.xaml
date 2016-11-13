@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UI"
         mc:Ignorable="d"
-        Title="{Binding Title}" Height="300" Width="525"
+        Title="{Binding Title}" Height="350" Width="600"
         Background="#f0f0f0"
-        MinHeight="300"
-        MinWidth="460"
+        MinHeight="350"
+        MinWidth="600"
         IsEnabled="{Binding IsEnabled}">
     <DockPanel>
         <StatusBar DockPanel.Dock="Bottom">
@@ -79,10 +79,14 @@
                                 <Button Grid.Column="1" Content="Выбрать" Command="{Binding ChooseSessionFileEncryptingCommand}"/>
                             </Grid>
                         </StackPanel>
-                        <CheckBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                  IsChecked="{Binding UseDigitalSignature}">
+                        <StackPanel Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <CheckBox  IsChecked="{Binding UseDigitalSignature}">
                             ЭЦП
                         </CheckBox>
+                        <CheckBox Margin="0,5,0,0" IsChecked="{Binding UseCBCMac}">
+                            CBC-Mac
+                        </CheckBox>
+                        </StackPanel>
                         <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" VerticalAlignment="Center">
                             <Button Content="Зашифровать" Command="{Binding EncryptCommand}"/>
                         </StackPanel>
@@ -130,6 +134,15 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBox Grid.Column="0" Text="{Binding HmacPath}" />
                                 <Button Grid.Column="1" Content="Выбрать" Command="{Binding ChooseHmacFileCommand}"/>
+                            </Grid>
+                            <TextBlock Margin="0,5,0,0" Text="Файл CBC-MAC"/>
+                            <Grid Margin="0,5,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="70*"/>
+                                    <ColumnDefinition Width="30*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0" Text="{Binding CBCMacPath}" />
+                                <Button Grid.Column="1" Content="Выбрать" Command="{Binding ChooseCBCMacFileCommand}"/>
                             </Grid>
                         </StackPanel>
                         <StackPanel Grid.Column="1" VerticalAlignment="Center">

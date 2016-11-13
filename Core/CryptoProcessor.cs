@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Core.CryptoAlgorithms;
 using Core.CryptoAlgorithms.Interfaces;
+using Core.CryptoAlgorithms.Signature;
 using SHA1 = Core.CryptoAlgorithms.SHA1;
 
 namespace Core
@@ -41,7 +42,7 @@ namespace Core
 
         public static bool Encrypt(out List<string> errorList, ICryptoAlgorithm cryptoAlgorithm, int keySize, 
             string targetMessageFile, string targetSessionFile, string messagePath, 
-            string sessionFileEncryptingPath, X509Certificate2 ownCertificate, string targetHmacPath, X509Certificate2 partnerCertificate = null, 
+            string sessionFileEncryptingPath, X509Certificate2 ownCertificate, string targetHmacPath, string targetCBCMacPath, X509Certificate2 partnerCertificate = null, 
             string targetSignatureFile = null)
         {
             errorList = new List<string>();
@@ -121,30 +122,47 @@ namespace Core
                 return false;
             }
 
-            if (targetSignatureFile == null) return true; //ЭЦП не нужна
-
-            try
+            if (targetSignatureFile != null)
             {
-                var hashedText = SHA1.GetHash(message);
-                string encryptedText = new CryptoAlgorithms.RSA().SignHash(ownCertificate, hashedText);
-                SaveFile(encryptedText, targetSignatureFile);
-                return true;
+                try
+                {
+                    var hashedText = SHA1.GetHash(message);
+                    string encryptedText = new CryptoAlgorithms.RSA().SignHash(ownCertificate, hashedText);
+                    SaveFile(encryptedText, targetSignatureFile);
+                }
+                catch (Exception ex)
+                {
+                    errorList.Add(ex.Message);
+                    return false;
+                }
             }
-            catch (Exception ex)
+            if (targetCBCMacPath != null)
             {
-                errorList.Add(ex.Message);
-                return false;
+                try
+                {
+                    var messageBytes = Encoding.Default.GetBytes(message);
+                    var sessionKeyBytes = Encoding.ASCII.GetBytes(sessionKey.Substring(0, 8));
+                    var cbcMacText = CBCMac.Generate(messageBytes, sessionKeyBytes);
+                    SaveFile(cbcMacText, targetCBCMacPath);
+                }
+                catch (Exception ex)
+                {
+                    errorList.Add(ex.Message);
+                    return false;
+                }
             }
+            return true;
         }
         private static string ByteToString(byte[] buff)
         {
             string sbinary = buff.Aggregate("", (current, t) => current + t.ToString("X2"));
 
-            return (sbinary);
+            return sbinary;
         }
 
         public static bool Decrypt(out List<string> errorList, ICryptoAlgorithm cryptoAlgorithm, string targetDecryptedFile,
-            string cryptedPath, string sessionFilePath, X509Certificate2 ownCertificate, string hmacPath, X509Certificate2 parnterCertificate = null, string signatureFilePath = null)
+            string cryptedPath, string sessionFilePath, X509Certificate2 ownCertificate, string hmacPath = null, 
+            string cbcPath = null, X509Certificate2 parnterCertificate = null, string signatureFilePath = null)
         {
             errorList = new List<string>();
 
@@ -192,24 +210,27 @@ namespace Core
                 errorList.Add(ex.Message);
                 return false;
             }
-            try
+            if (!string.IsNullOrEmpty(hmacPath))
             {
-                var keyByte = Encoding.ASCII.GetBytes(sessionKey);
-                var messageByte = Encoding.Default.GetBytes(message);
-                HMACSHA1 hmacsha1 = new HMACSHA1(keyByte);
-                var hashmessage = hmacsha1.ComputeHash(messageByte);
-                string hmacCurrent = ByteToString(hashmessage);
-                string hmacFromFile = ReadFile(hmacPath);
-                if (hmacCurrent != hmacFromFile)
+                try
                 {
-                    errorList.Add("Проверка целостности HMAC не пройдена!");
+                    var keyByte = Encoding.ASCII.GetBytes(sessionKey);
+                    var messageByte = Encoding.Default.GetBytes(message);
+                    HMACSHA1 hmacsha1 = new HMACSHA1(keyByte);
+                    var hashmessage = hmacsha1.ComputeHash(messageByte);
+                    string hmacCurrent = ByteToString(hashmessage);
+                    string hmacFromFile = ReadFile(hmacPath);
+                    if (hmacCurrent != hmacFromFile)
+                    {
+                        errorList.Add("Проверка целостности HMAC не пройдена!");
+                        return false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    errorList.Add(ex.Message);
                     return false;
                 }
-            }
-            catch (Exception ex)
-            {
-                errorList.Add(ex.Message);
-                return false;
             }
 
             if (!string.IsNullOrEmpty(signatureFilePath)) //ЭЦП
@@ -221,6 +242,27 @@ namespace Core
                     if (!rsa.VerifySign(parnterCertificate, hashedText, signature))
                     {
                         errorList.Add("Проверка подписи не пройдена!");
+                        return false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    errorList.Add(ex.Message);
+                    return false;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(cbcPath))
+            {
+                try
+                {
+                    var messageBytes = Encoding.Default.GetBytes(message);
+                    var sessionKeyBytes = Encoding.ASCII.GetBytes(sessionKey.Substring(0, 8));
+                    var cbcMacGenerated = CBCMac.Generate(messageBytes, sessionKeyBytes);
+                    var cbcMacFromFile = ReadFile(cbcPath);
+                    if (cbcMacGenerated != cbcMacFromFile)
+                    {
+                        errorList.Add("Проверка CBC-MAC не пройдена.");
                         return false;
                     }
                 }

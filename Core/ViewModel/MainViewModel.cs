@@ -37,6 +37,7 @@ namespace Core.ViewModel
             Title = "Шифратор";
             IsEnabled = true;
             UseDigitalSignature = false;
+            UseCBCMac = false;
 
             DispatcherHelper.Initialize();
 
@@ -102,6 +103,13 @@ namespace Core.ViewModel
         private RelayCommand _chooseHmacFileCommand;
         public ICommand ChooseHmacFileCommand
             => _chooseHmacFileCommand ?? (_chooseHmacFileCommand = new RelayCommand(() => RaiseOpenHmacPath("Файл HMAC")));
+
+        private RelayCommand _chooseCBCMacFileCommand;
+
+        public ICommand ChooseCBCMacFileCommand
+            =>
+                _chooseCBCMacFileCommand ??
+                (_chooseCBCMacFileCommand = new RelayCommand(() => RaiseOpenCBCMacPath("Файл CBC-Mac")));
         #endregion
 
         #region Events
@@ -201,6 +209,20 @@ namespace Core.ViewModel
             DispatcherHelper.CheckBeginInvokeOnUI(() =>
                     OpenHmacPath?.Invoke(this, title));
         }
+
+        public event EventHandler<string> OpenCBCMacPath;
+
+        private void RaiseOpenCBCMacPath(string title)
+        {
+            DispatcherHelper.CheckBeginInvokeOnUI(() =>
+                OpenCBCMacPath?.Invoke(this, title));
+        }
+        public event EventHandler<string> SelectTargetCBCMacPath;
+        private void RaiseSelectTargetCBCMacPath(string title)
+        {
+            DispatcherHelper.CheckBeginInvokeOnUI(() =>
+                    SelectTargetCBCMacPath?.Invoke(this, title));
+        }
         #endregion
 
         #region Private Fields
@@ -219,10 +241,13 @@ namespace Core.ViewModel
         private string _targetDecryptedFilePath;
         private int? _keySize;
         private bool _useDigitalSignature;
+        private bool _useCBCMac;
         private string _targetSignaturePath;
         private string _signaturePath;
         private string _targetHmacPath;
         private string _hmacPath;
+        private string _CBCMacPath;
+        private string _targetCBCMacPath;
         #endregion
 
         #region Public Properties
@@ -371,6 +396,15 @@ namespace Core.ViewModel
             }
             get { return _useDigitalSignature; }
         }
+        public bool UseCBCMac
+        {
+            set
+            {
+                _useCBCMac = value;
+                RaisePropertyChanged(() => UseCBCMac);
+            }
+            get { return _useCBCMac; }
+        }
         public string TargetSignaturePath
         {
             set
@@ -407,6 +441,26 @@ namespace Core.ViewModel
                 RaisePropertyChanged(() => HmacPath);
             }
             get { return _hmacPath; }
+        }
+
+        public string CBCMacPath
+        {
+            set
+            {
+                _CBCMacPath = value;
+                RaisePropertyChanged(() => CBCMacPath);
+            }
+            get { return _CBCMacPath; }
+        }
+
+        public string TargetCBCMacPath
+        {
+            set
+            {
+                _targetCBCMacPath = value;
+                RaisePropertyChanged(() => TargetCBCMacPath);
+            }
+            get { return _targetCBCMacPath; }
         }
         #endregion
 
@@ -454,6 +508,16 @@ namespace Core.ViewModel
             {
                 TargetSignaturePath = null;
             }
+            if (UseCBCMac)
+            {
+                RaiseSelectTargetCBCMacPath("Файл с CBC-Mac");
+                if (string.IsNullOrEmpty(TargetCBCMacPath))
+                    errorList.Add("Неверный путь для файла CBC-Mac");
+            }
+            else
+            {
+                TargetCBCMacPath = null;
+            }
             RaiseSelectTargetHmacPath("Файл HMAC");
             if (string.IsNullOrEmpty(TargetHmacPath))
                 errorList.Add("Не указан путь файла HMAC");
@@ -480,7 +544,7 @@ namespace Core.ViewModel
             if (
                 !CryptoProcessor.Encrypt(out errorList, SelectedCryptoAlgorithm, (int) KeySize, TargetEncryptedFilePath,
                     TargetSessionFilePath, OriginalPath,
-                    SessionFileEncryptingPath, OwnCertificate, TargetHmacPath, PartnerCertificate, TargetSignaturePath))
+                    SessionFileEncryptingPath, OwnCertificate, TargetHmacPath, TargetCBCMacPath, PartnerCertificate, TargetSignaturePath))
                 RaiseShowErrors(errorList.ToArray());
             Status = "Свободен";
             IsEnabled = true;
@@ -504,8 +568,8 @@ namespace Core.ViewModel
                 if (SelectedCryptoAlgorithm.CryptoMode == null)
                     errorList.Add("Укажите режим шифрования");
             }
-            if (string.IsNullOrEmpty(HmacPath))
-                errorList.Add("Файл с HMAC не указан");
+            //if (string.IsNullOrEmpty(HmacPath))
+            //    errorList.Add("Файл с HMAC не указан");
 
             if (errorList.Count > 0)
             {
@@ -537,7 +601,7 @@ namespace Core.ViewModel
             IsEnabled = true;
 
             if(!CryptoProcessor.Decrypt(out errorList, SelectedCryptoAlgorithm, TargetDecryptedFilePath, EncryptedPath, SessionFileDecryptingPath,
-                OwnCertificate, HmacPath, PartnerCertificate, SignaturePath))
+                OwnCertificate, HmacPath, CBCMacPath, PartnerCertificate, SignaturePath))
                 RaiseShowErrors(errorList.ToArray());
 
             return errorList.Count <= 0;

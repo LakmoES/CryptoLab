@@ -87,6 +87,7 @@
     <Compile Include="CryptoAlgorithms\Interfaces\ICryptoAlgorithm.cs" />
     <Compile Include="CryptoAlgorithms\RSA.cs" />
     <Compile Include="CryptoAlgorithms\SHA1.cs" />
+    <Compile Include="CryptoAlgorithms\Signature\CBCMac.cs" />
     <Compile Include="CryptoProcessor.cs" />
     <Compile Include="KeyGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
